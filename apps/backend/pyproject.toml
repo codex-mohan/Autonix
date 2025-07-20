@@ -5,6 +5,7 @@ description = "Agentic Backend for Autonix"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "dotenv>=0.9.9",
     "langchain>=0.3.26",
     "langchain-community>=0.3.27",
     "langchain-google-genai>=2.1.8",
@@ -12,4 +13,5 @@ dependencies = [
     "langchain-openai>=0.3.28",
     "langgraph>=0.5.3",
     "pydantic>=2.11.7",
+    "rich>=14.0.0",
 ]

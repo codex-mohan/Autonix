@@ -1,0 +1,27 @@
+name: Auto Version Bump
+
+on:
+  push:
+    branches:
+      - main # or master, depending on your default branch
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for git history
+
+      - name: Bump version and push tag
+        id: bump
+        uses: anothrNick/github-tag-action@1.67.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true # Add 'v' prefix to the tag, e.g., v1.0.0
+          DEFAULT_BUMP: patch # Can be 'major', 'minor', 'patch', or 'none'
+          
+      - name: Log new version
+        run: |
+          echo "New version: ${{ steps.bump.outputs.new_tag }}"
