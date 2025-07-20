@@ -79,10 +79,11 @@ class LLMConfig(BaseModel):
     reasoning_effort: Annotated[
         Literal["low", "medium", "high"], "Reasoning effort for the model"
     ]
+    max_retries: Annotated[int, "Maximum number of retries"] = 2
 
 
 class LLMProvider(BaseModel):
-    provider: Literal["openai", "ollama", "google"] = "openai"
+    provider: Literal["openai", "ollama", "google"] = "google"
     model: Annotated[Union[str, GoogleModels, OpenAIModels], "Name of the model"]
     config: Annotated[LLMConfig, "Common configuration for the models"]
 
@@ -93,6 +94,7 @@ class LLMProvider(BaseModel):
         self.top_k = self.config.top_k
         self.top_p = self.config.top_p
         self.temperature = self.config.temperature
+        self.max_retries = self.config.max_retries
 
         if self.model["reasoning"] and self.config["enable_reasoning"]:
             self.reasoning = True
@@ -113,6 +115,7 @@ class LLMProvider(BaseModel):
                     top_logprobs=self.top_k,
                     max_tokens=self.max_tokens,
                     reasoning_effort=self.reasoning_effort,
+                    max_retries=self.max_retries,
                 )
             elif self.provider == "google":
                 self.model = GOOGLE_MODELS[self.model]
@@ -124,6 +127,7 @@ class LLMProvider(BaseModel):
                     top_k=self.top_k,
                     max_tokens=self.max_tokens,
                     reasoning_effort=self.reasoning_effort,
+                    max_retries=self.max_retries,
                 )
             elif self.provider == "ollama":
                 self.model = GOOGLE_MODELS[self.model]
