@@ -1,17 +1,62 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Agentic Backend for Autonix"
-readme = "README.md"
-requires-python = ">=3.13"
-dependencies = [
-    "dotenv>=0.9.9",
-    "langchain>=0.3.26",
-    "langchain-community>=0.3.27",
-    "langchain-google-genai>=2.1.8",
-    "langchain-ollama>=0.3.5",
-    "langchain-openai>=0.3.28",
-    "langgraph>=0.5.3",
-    "pydantic>=2.11.7",
-    "rich>=14.0.0",
+description = "Agentic Backend for Autonix."
+authors = [
+    { name = "Mohana Krishna", email = "codexmohan@gmail.com" },
 ]
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph>=0.3.27",
+    # Optional (for selecting different models)
+    "langchain-openai>=0.2.1",
+    "langchain-anthropic>=0.2.1",
+    "langchain>=0.3.8",
+    "langchain-core>=0.3.8",
+    "python-dotenv>=1.0.1",
+    "langgraph-sdk>=0.1.32",
+    "langchain-ollama>=0.3.5",
+    "langchain-google-genai>=2.1.8",
+    "langgraph-cli[inmem]>=0.3.5",
+    "langchain-community>=0.3.27",
+]
+
+[project.optional-dependencies]
+dev = ["mypy>=1.11.1", "ruff>=0.6.1", "pytest-asyncio"]
+
+[build-system]
+requires = ["setuptools>=73.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["orchestrator"]
+[tool.setuptools.package-dir]
+"orchestrator" = "src/orchestrator"
+"langgraph.templates.orchestrator" = "src/orchestrator"
+
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+[tool.ruff]
+lint.select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "I",    # isort
+    "D",    # pydocstyle
+    "D401", # First line should be in imperative mood
+    "T201",
+    "UP",
+]
+lint.ignore = ["UP006", "UP007", "UP035", "D417", "E501"]
+include = ["*.py", "*.pyi", "*.ipynb"]
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "UP"]
+"ntbk/*" = ["D", "UP", "T201"]
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+ignore_errors = true

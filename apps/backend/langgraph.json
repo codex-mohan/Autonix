@@ -1,10 +1,15 @@
 {
-  "dependencies": ["."],
+  "dockerfile_lines": [],
   "graphs": {
-    "agent": "./agent/graph.py:graph"
+    "orchestrator": "./src/orchestrator/graph.py:graph"
   },
-  "http": {
-    "app": "./agent/app.py:app"
-  },
-  "env": ".env"
+  "env": ".env",
+  "python_version": "3.11",
+  "dependencies": ["."],
+  "store": {
+    "index": {
+      "dims": 1536,
+      "embed": "ollama:mxbai-embed-large:latest"
+    }
+  }
 }
