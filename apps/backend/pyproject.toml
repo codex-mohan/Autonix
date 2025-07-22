@@ -21,6 +21,7 @@ dependencies = [
     "langchain-google-genai>=2.1.8",
     "langgraph-cli[inmem]>=0.3.5",
     "langchain-community>=0.3.27",
+    "httpx>=0.28.1",
 ]
 
 [project.optional-dependencies]
