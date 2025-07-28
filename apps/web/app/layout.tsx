@@ -1,30 +1,40 @@
-import { Geist, Geist_Mono } from "next/font/google"
+import type React from "react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "@workspace/ui/styles/globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeInitializer } from "@/components/theme-initializer";
 
-import "@workspace/ui/globals.css"
-import { Providers } from "@/components/providers"
+const inter = Inter({ subsets: ["latin"] });
 
-const fontSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-})
-
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-})
+export const metadata: Metadata = {
+  title: "Autonix - Your Agentic AI Assistant",
+  description:
+    "An intelligent AI assistant that can respond in natural language and execute real tasks like creating files, sending emails, and monitoring events.",
+  generator: "v0.dev",
+};
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
-      >
-        <Providers>{children}</Providers>
+      <body className={inter.className}>
+        <ThemeProvider
+          attribute="data-theme"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange={false}
+          themes={["light", "dark", "ocean", "forest", "sunset", "midnight"]}
+        >
+          <ThemeInitializer />
+          <div className="min-h-screen bg-background text-foreground">
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }

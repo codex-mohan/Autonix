@@ -3,9 +3,13 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@workspace/ui/*": ["./src/*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["."],
+  "include": [
+    ".",
+    "../../apps/web/components/animated-social-icon.tsx",
+    "src/components/single-color-button.tsx"
+  ],
   "exclude": ["node_modules", "dist"]
 }

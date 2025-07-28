@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@workspace/ui/*": ["../../packages/ui/src/*"]
+      "@/lib/utils": ["../../packages/ui/src/lib/utils"],
+      "@workspace/ui/*": ["../../packages/ui/src/*"],
     },
     "plugins": [
       {
@@ -17,7 +18,8 @@
     "next.config.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "../../packages/ui/src/components/single-color-button.tsx"
   ],
   "exclude": ["node_modules"]
 }

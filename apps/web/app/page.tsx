@@ -1,12 +1,19 @@
-import { Button } from "@workspace/ui/components/button"
+import { LandingHero } from "@/components/landing/hero";
+import { LandingFeatures } from "@/components/landing/features";
+import { LandingFooter } from "@/components/landing/footer";
+import { FloatingNav } from "@/components/floating-nav";
+import { LandingContact } from "@/components/landing/contact";
 
-export default function Page() {
+export default function LandingPage() {
   return (
-    <div className="flex items-center justify-center min-h-svh">
-      <div className="flex flex-col items-center justify-center gap-4">
-        <h1 className="text-2xl font-bold">Hello World</h1>
-        <Button size="sm">Button</Button>
-      </div>
+    <div className="min-h-screen bg-background">
+      <FloatingNav />
+      <main>
+        <LandingHero />
+        <LandingFeatures />
+        <LandingContact />
+      </main>
+      <LandingFooter />
     </div>
-  )
+  );
 }
