@@ -4,30 +4,30 @@
 /* Futuristic Dark Theme - New Default */
 :root,
 [data-theme="futuristic"] {
-  --background: hsl(240 10% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(240 10% 3.9%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(240 10% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(263 70% 50%);
-  --primary-foreground: hsl(0 0% 98%);
-  --secondary: hsl(270 100% 70%);
-  --secondary-foreground: hsl(240 10% 3.9%);
-  --muted: hsl(240 3.7% 15.9%);
-  --muted-foreground: hsl(240 5% 64.9%);
-  --accent: hsl(240 3.7% 15.9%);
-  --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 3.7% 15.9%);
-  --input: hsl(240 3.7% 15.9%);
-  --ring: hsl(263 70% 50%);
-  --chart-1: hsl(263 70% 50%);
-  --chart-2: hsl(270 100% 70%);
-  --chart-3: hsl(0 62.8% 30.6%);
-  --chart-4: hsl(142 76% 36%);
-  --chart-5: hsl(14 91% 60%);
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 263 70% 50%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 270 100% 70%;
+  --secondary-foreground: 240 10% 3.9%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 263 70% 50%;
+  --chart-1: 263 70% 50%;
+  --chart-2: 270 100% 70%;
+  --chart-3: 0 62.8% 30.6%;
+  --chart-4: 142 76% 36%;
+  --chart-5: 14 91% 60%;
   --radius: 0.75rem;
   --sidebar: oklch(0.09 0.01 240);
   --sidebar-foreground: oklch(0.98 0 0);
@@ -37,26 +37,31 @@
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.16 0.01 240);
   --sidebar-ring: oklch(0.5 0.2 270);
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 139, 92, 246;
   --theme-secondary-rgb: 168, 85, 247;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
-  --theme-gradient-1: var(--primary);
-  --theme-gradient-2: var(--chart-5);
-  --theme-gradient-3: var(--chart-1);
-  --theme-gradient-4: var(--chart-4);
-  --theme-gradient-5: var(--chart-2);
-  --theme-gradient-6: var(--chart-3);
+  --theme-gradient-1: hsl(var(--primary));
+  --theme-gradient-2: hsl(var(--chart-5));
+  --theme-gradient-3: hsl(var(--chart-1));
+  --theme-gradient-4: hsl(var(--chart-4));
+  --theme-gradient-5: hsl(var(--chart-2));
+  --theme-gradient-6: hsl(var(--chart-3));
+
   /* Glow effects */
   --text-glow-color: rgba(139, 92, 246, 0.5);
   --text-glow-color-faded: rgba(139, 92, 246, 0.3);
   --hover-glow-color: rgba(139, 92, 246, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(139, 92, 246, 0.3);
   --orb-color-primary-faded: rgba(139, 92, 246, 0.1);
@@ -64,6 +69,7 @@
   --orb-color-secondary-faded: rgba(168, 85, 247, 0.1);
   --orb-color-tertiary: rgba(147, 51, 234, 0.2);
   --orb-color-tertiary-faded: rgba(147, 51, 234, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(139, 92, 246, 0.12);
   --grid-glow-color: rgba(139, 92, 246, 0.05);
@@ -71,25 +77,25 @@
 
 .dark,
 [data-theme="futuristic"].dark {
-  --background: hsl(240 10% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(240 10% 3.9%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(240 10% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(263 70% 50%);
-  --primary-foreground: hsl(0 0% 98%);
-  --secondary: hsl(270 100% 70%);
-  --secondary-foreground: hsl(240 10% 3.9%);
-  --muted: hsl(240 3.7% 15.9%);
-  --muted-foreground: hsl(240 5% 64.9%);
-  --accent: hsl(240 3.7% 15.9%);
-  --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 3.7% 15.9%);
-  --input: hsl(240 3.7% 15.9%);
-  --ring: hsl(263 70% 50%);
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 263 70% 50%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 270 100% 70%;
+  --secondary-foreground: 240 10% 3.9%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 263 70% 50%;
   --sidebar: oklch(0.09 0.01 240);
   --sidebar-foreground: oklch(0.98 0 0);
   --sidebar-primary: oklch(0.5 0.2 270);
@@ -98,26 +104,31 @@
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.16 0.01 240);
   --sidebar-ring: oklch(0.5 0.2 270);
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 139, 92, 246;
   --theme-secondary-rgb: 168, 85, 247;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
-  --theme-gradient-1: var(--primary);
-  --theme-gradient-2: var(--chart-5);
-  --theme-gradient-3: var(--chart-1);
-  --theme-gradient-4: var(--chart-4);
-  --theme-gradient-5: var(--chart-2);
-  --theme-gradient-6: var(--chart-3);
+  --theme-gradient-1: hsl(var(--primary));
+  --theme-gradient-2: hsl(var(--chart-5));
+  --theme-gradient-3: hsl(var(--chart-1));
+  --theme-gradient-4: hsl(var(--chart-4));
+  --theme-gradient-5: hsl(var(--chart-2));
+  --theme-gradient-6: hsl(var(--chart-3));
+
   /* Glow effects */
   --text-glow-color: rgba(139, 92, 246, 0.5);
   --text-glow-color-faded: rgba(139, 92, 246, 0.3);
   --hover-glow-color: rgba(139, 92, 246, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(139, 92, 246, 0.3);
   --orb-color-primary-faded: rgba(139, 92, 246, 0.1);
@@ -125,6 +136,7 @@
   --orb-color-secondary-faded: rgba(168, 85, 247, 0.1);
   --orb-color-tertiary: rgba(147, 51, 234, 0.2);
   --orb-color-tertiary-faded: rgba(147, 51, 234, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(139, 92, 246, 0.12);
   --grid-glow-color: rgba(139, 92, 246, 0.05);
@@ -132,51 +144,56 @@
 
 /* Catppuccin Theme */
 [data-theme="catppuccin"] {
-  --background: hsl(220 23.0769% 94.902%);
-  --foreground: hsl(233.7931 16.0221% 35.4902%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(233.7931 16.0221% 35.4902%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(233.7931 16.0221% 35.4902%);
-  --primary: hsl(270.5263 50% 44.7059%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(201.9289 78.4861% 50.7843%);
-  --secondary-foreground: hsl(0 0% 100%);
-  --muted: hsl(220 21.9512% 91.9608%);
-  --muted-foreground: hsl(232.1739 9.6234% 53.1373%);
-  --accent: hsl(246.6667 56.25% 93.7255%);
-  --accent-foreground: hsl(243.8095 61.7647% 60%);
-  --destructive: hsl(347.0769 86.6667% 44.1176%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(220 20.6897% 88.6275%);
-  --input: hsl(220 20.6897% 88.6275%);
-  --ring: hsl(243.8095 61.7647% 60%);
-  --chart-1: hsl(201.9289 78.4861% 50.7843%);
-  --chart-2: hsl(270.5263 50% 44.7059%);
-  --chart-3: hsl(347.0769 86.6667% 44.1176%);
-  --chart-4: hsl(109.2308 57.6355% 39.8039%);
-  --chart-5: hsl(21.9753 99.1837% 51.9608%);
+  --background: 220 23.0769% 94.902%;
+  --foreground: 233.7931 16.0221% 35.4902%;
+  --card: 0 0% 100%;
+  --card-foreground: 233.7931 16.0221% 35.4902%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 233.7931 16.0221% 35.4902%;
+  --primary: 270.5263 50% 44.7059%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 201.9289 78.4861% 50.7843%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 220 21.9512% 91.9608%;
+  --muted-foreground: 232.1739 9.6234% 53.1373%;
+  --accent: 246.6667 56.25% 93.7255%;
+  --accent-foreground: 243.8095 61.7647% 60%;
+  --destructive: 347.0769 86.6667% 44.1176%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 20.6897% 88.6275%;
+  --input: 220 20.6897% 88.6275%;
+  --ring: 243.8095 61.7647% 60%;
+  --chart-1: 201.9289 78.4861% 50.7843%;
+  --chart-2: 270.5263 50% 44.7059%;
+  --chart-3: 347.0769 86.6667% 44.1176%;
+  --chart-4: 109.2308 57.6355% 39.8039%;
+  --chart-5: 21.9753 99.1837% 51.9608%;
   --radius: 0.75rem;
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 116, 107, 209;
   --theme-secondary-rgb: 89, 166, 221;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
-  --theme-gradient-1: var(--primary);
-  --theme-gradient-2: var(--chart-5);
-  --theme-gradient-3: var(--chart-1);
-  --theme-gradient-4: var(--chart-4);
-  --theme-gradient-5: var(--chart-2);
-  --theme-gradient-6: var(--chart-3);
+  --theme-gradient-1: hsl(var(--primary));
+  --theme-gradient-2: hsl(var(--chart-5));
+  --theme-gradient-3: hsl(var(--chart-1));
+  --theme-gradient-4: hsl(var(--chart-4));
+  --theme-gradient-5: hsl(var(--chart-2));
+  --theme-gradient-6: hsl(var(--chart-3));
+
   /* Glow effects */
   --text-glow-color: rgba(116, 107, 209, 0.5);
   --text-glow-color-faded: rgba(116, 107, 209, 0.3);
   --hover-glow-color: rgba(116, 107, 209, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(116, 107, 209, 0.3);
   --orb-color-primary-faded: rgba(116, 107, 209, 0.1);
@@ -184,51 +201,57 @@
   --orb-color-secondary-faded: rgba(89, 166, 221, 0.1);
   --orb-color-tertiary: rgba(140, 143, 227, 0.2);
   --orb-color-tertiary-faded: rgba(140, 143, 227, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(116, 107, 209, 0.12);
   --grid-glow-color: rgba(116, 107, 209, 0.05);
 }
 
 [data-theme="catppuccin"].dark {
-  --background: hsl(240 21.0526% 14.902%);
-  --foreground: hsl(226.1538 63.9344% 88.0392%);
-  --card: hsl(240 21.3115% 11.9608%);
-  --card-foreground: hsl(226.1538 63.9344% 88.0392%);
-  --popover: hsl(240 22.7273% 8.6275%);
-  --popover-foreground: hsl(226.1538 63.9344% 88.0392%);
-  --primary: hsl(271.1111 33.0612% 51.9608%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(202.1053 91.2664% 55.098%);
-  --secondary-foreground: hsl(0 0% 100%);
-  --muted: hsl(236.8421 16.2393% 22.9412%);
-  --muted-foreground: hsl(226.6667 35.2941% 80%);
-  --accent: hsl(244.5455 34.0206% 61.9608%);
-  --accent-foreground: hsl(240 100% 97.0588%);
-  --destructive: hsl(343.2692 81.25% 74.902%);
-  --destructive-foreground: hsl(240 21.0526% 14.902%);
-  --border: hsl(234.2857 13.2075% 31.1765%);
-  --input: hsl(234.2857 13.2075% 31.1765%);
-  --ring: hsl(273.1034 73.4177% 69.0196%);
+  --background: 240 21.0526% 14.902%;
+  --foreground: 226.1538 63.9344% 88.0392%;
+  --card: 240 21.3115% 11.9608%;
+  --card-foreground: 226.1538 63.9344% 88.0392%;
+  --popover: 240 22.7273% 8.6275%;
+  --popover-foreground: 226.1538 63.9344% 88.0392%;
+  --primary: 271.1111 33.0612% 51.9608%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 202.1053 91.2664% 55.098%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 236.8421 16.2393% 22.9412%;
+  --muted-foreground: 226.6667 35.2941% 80%;
+  --accent: 244.5455 34.0206% 61.9608%;
+  --accent-foreground: 240 100% 97.0588%;
+  --destructive: 343.2692 81.25% 74.902%;
+  --destructive-foreground: 240 21.0526% 14.902%;
+  --border: 234.2857 13.2075% 31.1765%;
+  --input: 234.2857 13.2075% 31.1765%;
+  --ring: 273.1034 73.4177% 69.0196%;
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 140, 143, 227;
   --theme-secondary-rgb: 89, 166, 221;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
-  --theme-gradient-1: var(--primary);
-  --theme-gradient-2: var(--chart-5);
-  --theme-gradient-3: var(--chart-1);
-  --theme-gradient-4: var(--chart-4);
-  --theme-gradient-5: var(--chart-2);
-  --theme-gradient-6: var(--chart-3);
+  --theme-gradient-1: hsl(var(--primary));
+  --theme-gradient-2: hsl(var(--chart-5));
+  --theme-gradient-3: hsl(var(--chart-1));
+  --theme-gradient-4: hsl(var(--chart-4));
+  --theme-gradient-5: hsl(var(--chart-2));
+  --theme-gradient-6: hsl(var(--chart-3));
+
   /* Glow effects */
   --text-glow-color: rgba(140, 143, 227, 0.5);
   --text-glow-color-faded: rgba(140, 143, 227, 0.3);
   --hover-glow-color: rgba(140, 143, 227, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(140, 143, 227, 0.3);
   --orb-color-primary-faded: rgba(140, 143, 227, 0.1);
@@ -236,6 +259,7 @@
   --orb-color-secondary-faded: rgba(89, 166, 221, 0.1);
   --orb-color-tertiary: rgba(116, 107, 209, 0.2);
   --orb-color-tertiary-faded: rgba(116, 107, 209, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(140, 143, 227, 0.12);
   --grid-glow-color: rgba(140, 143, 227, 0.05);
@@ -243,34 +267,37 @@
 
 /* Ocean Theme */
 [data-theme="ocean"] {
-  --background: hsl(210 40% 98%);
-  --foreground: hsl(210 40% 8%);
-  --card: hsl(210 40% 100%);
-  --card-foreground: hsl(210 40% 8%);
-  --popover: hsl(210 40% 100%);
-  --popover-foreground: hsl(210 40% 8%);
-  --primary: hsl(200 98% 39%);
-  --primary-foreground: hsl(210 40% 98%);
-  --secondary: hsl(180 62% 55%);
-  --secondary-foreground: hsl(210 40% 98%);
-  --muted: hsl(210 40% 96%);
-  --muted-foreground: hsl(210 40% 45%);
-  --accent: hsl(210 40% 94%);
-  --accent-foreground: hsl(210 40% 11%);
-  --destructive: hsl(0 84% 60%);
-  --destructive-foreground: hsl(210 40% 98%);
-  --border: hsl(210 40% 90%);
-  --input: hsl(210 40% 90%);
-  --ring: hsl(200 98% 39%);
+  --background: 210 40% 98%;
+  --foreground: 210 40% 8%;
+  --card: 210 40% 100%;
+  --card-foreground: 210 40% 8%;
+  --popover: 210 40% 100%;
+  --popover-foreground: 210 40% 8%;
+  --primary: 200 98% 39%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 180 62% 55%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 210 40% 45%;
+  --accent: 210 40% 94%;
+  --accent-foreground: 210 40% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 210 40% 90%;
+  --input: 210 40% 90%;
+  --ring: 200 98% 39%;
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 14, 165, 233;
   --theme-secondary-rgb: 20, 184, 166;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
   --theme-gradient-1: hsl(200 98% 39%);
   --theme-gradient-2: hsl(180 62% 55%);
@@ -278,10 +305,12 @@
   --theme-gradient-4: hsl(190 80% 60%);
   --theme-gradient-5: hsl(220 70% 45%);
   --theme-gradient-6: hsl(200 80% 65%);
+
   /* Glow effects */
   --text-glow-color: rgba(14, 165, 233, 0.5);
   --text-glow-color-faded: rgba(14, 165, 233, 0.3);
   --hover-glow-color: rgba(14, 165, 233, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(14, 165, 233, 0.3);
   --orb-color-primary-faded: rgba(14, 165, 233, 0.1);
@@ -289,40 +318,44 @@
   --orb-color-secondary-faded: rgba(20, 184, 166, 0.1);
   --orb-color-tertiary: rgba(56, 189, 248, 0.2);
   --orb-color-tertiary-faded: rgba(56, 189, 248, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(14, 165, 233, 0.12);
   --grid-glow-color: rgba(14, 165, 233, 0.05);
 }
 
 [data-theme="ocean"].dark {
-  --background: hsl(210 40% 8%);
-  --foreground: hsl(210 40% 98%);
-  --card: hsl(210 40% 10%);
-  --card-foreground: hsl(210 40% 98%);
-  --popover: hsl(210 40% 5%);
-  --popover-foreground: hsl(210 40% 98%);
-  --primary: hsl(200 98% 60%);
-  --primary-foreground: hsl(210 40% 8%);
-  --secondary: hsl(180 62% 65%);
-  --secondary-foreground: hsl(210 40% 8%);
-  --muted: hsl(210 40% 15%);
-  --muted-foreground: hsl(210 40% 65%);
-  --accent: hsl(210 40% 20%);
-  --accent-foreground: hsl(210 40% 98%);
-  --destructive: hsl(0 84% 70%);
-  --destructive-foreground: hsl(210 40% 8%);
-  --border: hsl(210 40% 20%);
-  --input: hsl(210 40% 20%);
-  --ring: hsl(200 98% 60%);
+  --background: 210 40% 8%;
+  --foreground: 210 40% 98%;
+  --card: 210 40% 10%;
+  --card-foreground: 210 40% 98%;
+  --popover: 210 40% 5%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 200 98% 60%;
+  --primary-foreground: 210 40% 8%;
+  --secondary: 180 62% 65%;
+  --secondary-foreground: 210 40% 8%;
+  --muted: 210 40% 15%;
+  --muted-foreground: 210 40% 65%;
+  --accent: 210 40% 20%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 84% 70%;
+  --destructive-foreground: 210 40% 8%;
+  --border: 210 40% 20%;
+  --input: 210 40% 20%;
+  --ring: 200 98% 60%;
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 56, 189, 248;
   --theme-secondary-rgb: 20, 184, 166;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
   --theme-gradient-1: hsl(200 98% 60%);
   --theme-gradient-2: hsl(180 62% 65%);
@@ -330,10 +363,12 @@
   --theme-gradient-4: hsl(190 80% 75%);
   --theme-gradient-5: hsl(220 70% 65%);
   --theme-gradient-6: hsl(200 80% 80%);
+
   /* Glow effects */
   --text-glow-color: rgba(56, 189, 248, 0.5);
   --text-glow-color-faded: rgba(56, 189, 248, 0.3);
   --hover-glow-color: rgba(56, 189, 248, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(56, 189, 248, 0.3);
   --orb-color-primary-faded: rgba(56, 189, 248, 0.1);
@@ -341,6 +376,7 @@
   --orb-color-secondary-faded: rgba(20, 184, 166, 0.1);
   --orb-color-tertiary: rgba(14, 165, 233, 0.2);
   --orb-color-tertiary-faded: rgba(14, 165, 233, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(56, 189, 248, 0.12);
   --grid-glow-color: rgba(56, 189, 248, 0.05);
@@ -348,34 +384,37 @@
 
 /* Forest Theme */
 [data-theme="forest"] {
-  --background: hsl(120 20% 98%);
-  --foreground: hsl(120 20% 8%);
-  --card: hsl(120 20% 100%);
-  --card-foreground: hsl(120 20% 8%);
-  --popover: hsl(120 20% 100%);
-  --popover-foreground: hsl(120 20% 8%);
-  --primary: hsl(142 76% 36%);
-  --primary-foreground: hsl(120 20% 98%);
-  --secondary: hsl(88 50% 53%);
-  --secondary-foreground: hsl(120 20% 98%);
-  --muted: hsl(120 20% 96%);
-  --muted-foreground: hsl(120 20% 45%);
-  --accent: hsl(120 20% 94%);
-  --accent-foreground: hsl(120 20% 11%);
-  --destructive: hsl(0 84% 60%);
-  --destructive-foreground: hsl(120 20% 98%);
-  --border: hsl(120 20% 90%);
-  --input: hsl(120 20% 90%);
-  --ring: hsl(142 76% 36%);
+  --background: 120 20% 98%;
+  --foreground: 120 20% 8%;
+  --card: 120 20% 100%;
+  --card-foreground: 120 20% 8%;
+  --popover: 120 20% 100%;
+  --popover-foreground: 120 20% 8%;
+  --primary: 142 76% 36%;
+  --primary-foreground: 120 20% 98%;
+  --secondary: 88 50% 53%;
+  --secondary-foreground: 120 20% 98%;
+  --muted: 120 20% 96%;
+  --muted-foreground: 120 20% 45%;
+  --accent: 120 20% 94%;
+  --accent-foreground: 120 20% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 120 20% 98%;
+  --border: 120 20% 90%;
+  --input: 120 20% 90%;
+  --ring: 142 76% 36%;
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 5, 150, 105;
   --theme-secondary-rgb: 132, 204, 22;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
   --theme-gradient-1: hsl(142 76% 36%);
   --theme-gradient-2: hsl(88 50% 53%);
@@ -383,10 +422,12 @@
   --theme-gradient-4: hsl(100 55% 50%);
   --theme-gradient-5: hsl(160 50% 45%);
   --theme-gradient-6: hsl(120 60% 60%);
+
   /* Glow effects */
   --text-glow-color: rgba(5, 150, 105, 0.5);
   --text-glow-color-faded: rgba(5, 150, 105, 0.3);
   --hover-glow-color: rgba(5, 150, 105, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(5, 150, 105, 0.3);
   --orb-color-primary-faded: rgba(5, 150, 105, 0.1);
@@ -394,40 +435,44 @@
   --orb-color-secondary-faded: rgba(132, 204, 22, 0.1);
   --orb-color-tertiary: rgba(16, 185, 129, 0.2);
   --orb-color-tertiary-faded: rgba(16, 185, 129, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(5, 150, 105, 0.12);
   --grid-glow-color: rgba(5, 150, 105, 0.05);
 }
 
 [data-theme="forest"].dark {
-  --background: hsl(120 20% 8%);
-  --foreground: hsl(120 20% 98%);
-  --card: hsl(120 20% 10%);
-  --card-foreground: hsl(120 20% 98%);
-  --popover: hsl(120 20% 5%);
-  --popover-foreground: hsl(120 20% 98%);
-  --primary: hsl(142 76% 50%);
-  --primary-foreground: hsl(120 20% 8%);
-  --secondary: hsl(88 50% 65%);
-  --secondary-foreground: hsl(120 20% 8%);
-  --muted: hsl(120 20% 15%);
-  --muted-foreground: hsl(120 20% 65%);
-  --accent: hsl(120 20% 20%);
-  --accent-foreground: hsl(120 20% 98%);
-  --destructive: hsl(0 84% 70%);
-  --destructive-foreground: hsl(120 20% 8%);
-  --border: hsl(120 20% 20%);
-  --input: hsl(120 20% 20%);
-  --ring: hsl(142 76% 50%);
+  --background: 120 20% 8%;
+  --foreground: 120 20% 98%;
+  --card: 120 20% 10%;
+  --card-foreground: 120 20% 98%;
+  --popover: 120 20% 5%;
+  --popover-foreground: 120 20% 98%;
+  --primary: 142 76% 50%;
+  --primary-foreground: 120 20% 8%;
+  --secondary: 88 50% 65%;
+  --secondary-foreground: 120 20% 8%;
+  --muted: 120 20% 15%;
+  --muted-foreground: 120 20% 65%;
+  --accent: 120 20% 20%;
+  --accent-foreground: 120 20% 98%;
+  --destructive: 0 84% 70%;
+  --destructive-foreground: 120 20% 8%;
+  --border: 120 20% 20%;
+  --input: 120 20% 20%;
+  --ring: 142 76% 50%;
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 16, 185, 129;
   --theme-secondary-rgb: 132, 204, 22;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
   --theme-gradient-1: hsl(142 76% 50%);
   --theme-gradient-2: hsl(88 50% 65%);
@@ -435,10 +480,12 @@
   --theme-gradient-4: hsl(100 55% 60%);
   --theme-gradient-5: hsl(160 50% 55%);
   --theme-gradient-6: hsl(120 60% 70%);
+
   /* Glow effects */
   --text-glow-color: rgba(16, 185, 129, 0.5);
   --text-glow-color-faded: rgba(16, 185, 129, 0.3);
   --hover-glow-color: rgba(16, 185, 129, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(16, 185, 129, 0.3);
   --orb-color-primary-faded: rgba(16, 185, 129, 0.1);
@@ -446,6 +493,7 @@
   --orb-color-secondary-faded: rgba(132, 204, 22, 0.1);
   --orb-color-tertiary: rgba(5, 150, 105, 0.2);
   --orb-color-tertiary-faded: rgba(5, 150, 105, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(16, 185, 129, 0.12);
   --grid-glow-color: rgba(16, 185, 129, 0.05);
@@ -453,34 +501,37 @@
 
 /* Sunset Theme */
 [data-theme="sunset"] {
-  --background: hsl(30 40% 98%);
-  --foreground: hsl(30 40% 8%);
-  --card: hsl(30 40% 100%);
-  --card-foreground: hsl(30 40% 8%);
-  --popover: hsl(30 40% 100%);
-  --popover-foreground: hsl(30 40% 8%);
-  --primary: hsl(14 91% 60%);
-  --primary-foreground: hsl(30 40% 98%);
-  --secondary: hsl(45 93% 58%);
-  --secondary-foreground: hsl(30 40% 8%);
-  --muted: hsl(30 40% 96%);
-  --muted-foreground: hsl(30 40% 45%);
-  --accent: hsl(30 40% 94%);
-  --accent-foreground: hsl(30 40% 11%);
-  --destructive: hsl(0 84% 60%);
-  --destructive-foreground: hsl(30 40% 98%);
-  --border: hsl(30 40% 90%);
-  --input: hsl(30 40% 90%);
-  --ring: hsl(14 91% 60%);
+  --background: 30 40% 98%;
+  --foreground: 30 40% 8%;
+  --card: 30 40% 100%;
+  --card-foreground: 30 40% 8%;
+  --popover: 30 40% 100%;
+  --popover-foreground: 30 40% 8%;
+  --primary: 14 91% 60%;
+  --primary-foreground: 30 40% 98%;
+  --secondary: 45 93% 58%;
+  --secondary-foreground: 30 40% 8%;
+  --muted: 30 40% 96%;
+  --muted-foreground: 30 40% 45%;
+  --accent: 30 40% 94%;
+  --accent-foreground: 30 40% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 30 40% 98%;
+  --border: 30 40% 90%;
+  --input: 30 40% 90%;
+  --ring: 14 91% 60%;
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 249, 115, 22;
   --theme-secondary-rgb: 234, 179, 8;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
   --theme-gradient-1: hsl(14 91% 60%);
   --theme-gradient-2: hsl(45 93% 58%);
@@ -488,10 +539,12 @@
   --theme-gradient-4: hsl(35 90% 60%);
   --theme-gradient-5: hsl(5 85% 65%);
   --theme-gradient-6: hsl(20 80% 70%);
+
   /* Glow effects */
   --text-glow-color: rgba(249, 115, 22, 0.5);
   --text-glow-color-faded: rgba(249, 115, 22, 0.3);
   --hover-glow-color: rgba(249, 115, 22, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(249, 115, 22, 0.3);
   --orb-color-primary-faded: rgba(249, 115, 22, 0.1);
@@ -499,40 +552,44 @@
   --orb-color-secondary-faded: rgba(234, 179, 8, 0.1);
   --orb-color-tertiary: rgba(245, 158, 11, 0.2);
   --orb-color-tertiary-faded: rgba(245, 158, 11, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(249, 115, 22, 0.12);
   --grid-glow-color: rgba(249, 115, 22, 0.05);
 }
 
 [data-theme="sunset"].dark {
-  --background: hsl(30 40% 8%);
-  --foreground: hsl(30 40% 98%);
-  --card: hsl(30 40% 10%);
-  --card-foreground: hsl(30 40% 98%);
-  --popover: hsl(30 40% 5%);
-  --popover-foreground: hsl(30 40% 98%);
-  --primary: hsl(14 91% 70%);
-  --primary-foreground: hsl(30 40% 8%);
-  --secondary: hsl(45 93% 68%);
-  --secondary-foreground: hsl(30 40% 8%);
-  --muted: hsl(30 40% 15%);
-  --muted-foreground: hsl(30 40% 65%);
-  --accent: hsl(30 40% 20%);
-  --accent-foreground: hsl(30 40% 98%);
-  --destructive: hsl(0 84% 70%);
-  --destructive-foreground: hsl(30 40% 8%);
-  --border: hsl(30 40% 20%);
-  --input: hsl(30 40% 20%);
-  --ring: hsl(14 91% 70%);
+  --background: 30 40% 8%;
+  --foreground: 30 40% 98%;
+  --card: 30 40% 10%;
+  --card-foreground: 30 40% 98%;
+  --popover: 30 40% 5%;
+  --popover-foreground: 30 40% 98%;
+  --primary: 14 91% 70%;
+  --primary-foreground: 30 40% 8%;
+  --secondary: 45 93% 68%;
+  --secondary-foreground: 30 40% 8%;
+  --muted: 30 40% 15%;
+  --muted-foreground: 30 40% 65%;
+  --accent: 30 40% 20%;
+  --accent-foreground: 30 40% 98%;
+  --destructive: 0 84% 70%;
+  --destructive-foreground: 30 40% 8%;
+  --border: 30 40% 20%;
+  --input: 30 40% 20%;
+  --ring: 14 91% 70%;
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 245, 158, 11;
   --theme-secondary-rgb: 234, 179, 8;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
   --theme-gradient-1: hsl(14 91% 70%);
   --theme-gradient-2: hsl(45 93% 68%);
@@ -540,10 +597,12 @@
   --theme-gradient-4: hsl(35 90% 70%);
   --theme-gradient-5: hsl(5 85% 75%);
   --theme-gradient-6: hsl(20 80% 80%);
+
   /* Glow effects */
   --text-glow-color: rgba(245, 158, 11, 0.5);
   --text-glow-color-faded: rgba(245, 158, 11, 0.3);
   --hover-glow-color: rgba(245, 158, 11, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(245, 158, 11, 0.3);
   --orb-color-primary-faded: rgba(245, 158, 11, 0.1);
@@ -551,6 +610,7 @@
   --orb-color-secondary-faded: rgba(234, 179, 8, 0.1);
   --orb-color-tertiary: rgba(249, 115, 22, 0.2);
   --orb-color-tertiary-faded: rgba(249, 115, 22, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(245, 158, 11, 0.12);
   --grid-glow-color: rgba(245, 158, 11, 0.05);
@@ -558,34 +618,37 @@
 
 /* Midnight Theme */
 [data-theme="midnight"] {
-  --background: hsl(240 10% 98%);
-  --foreground: hsl(240 10% 8%);
-  --card: hsl(240 10% 100%);
-  --card-foreground: hsl(240 10% 8%);
-  --popover: hsl(240 10% 100%);
-  --popover-foreground: hsl(240 10% 8%);
-  --primary: hsl(263 70% 50%);
-  --primary-foreground: hsl(240 10% 98%);
-  --secondary: hsl(300 20% 50%);
-  --secondary-foreground: hsl(240 10% 98%);
-  --muted: hsl(240 10% 96%);
-  --muted-foreground: hsl(240 10% 45%);
-  --accent: hsl(240 10% 94%);
-  --accent-foreground: hsl(240 10% 11%);
-  --destructive: hsl(0 84% 60%);
-  --destructive-foreground: hsl(240 10% 98%);
-  --border: hsl(240 10% 90%);
-  --input: hsl(240 10% 90%);
-  --ring: hsl(263 70% 50%);
+  --background: 240 10% 98%;
+  --foreground: 240 10% 8%;
+  --card: 240 10% 100%;
+  --card-foreground: 240 10% 8%;
+  --popover: 240 10% 100%;
+  --popover-foreground: 240 10% 8%;
+  --primary: 263 70% 50%;
+  --primary-foreground: 240 10% 98%;
+  --secondary: 300 20% 50%;
+  --secondary-foreground: 240 10% 98%;
+  --muted: 240 10% 96%;
+  --muted-foreground: 240 10% 45%;
+  --accent: 240 10% 94%;
+  --accent-foreground: 240 10% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 240 10% 98%;
+  --border: 240 10% 90%;
+  --input: 240 10% 90%;
+  --ring: 263 70% 50%;
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 139, 92, 246;
   --theme-secondary-rgb: 168, 85, 247;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
   --theme-gradient-1: hsl(263 70% 50%);
   --theme-gradient-2: hsl(300 20% 50%);
@@ -593,10 +656,12 @@
   --theme-gradient-4: hsl(280 40% 60%);
   --theme-gradient-5: hsl(270 50% 45%);
   --theme-gradient-6: hsl(290 30% 65%);
+
   /* Glow effects */
   --text-glow-color: rgba(139, 92, 246, 0.5);
   --text-glow-color-faded: rgba(139, 92, 246, 0.3);
   --hover-glow-color: rgba(139, 92, 246, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(139, 92, 246, 0.3);
   --orb-color-primary-faded: rgba(139, 92, 246, 0.1);
@@ -604,40 +669,44 @@
   --orb-color-secondary-faded: rgba(168, 85, 247, 0.1);
   --orb-color-tertiary: rgba(147, 51, 234, 0.2);
   --orb-color-tertiary-faded: rgba(147, 51, 234, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(139, 92, 246, 0.12);
   --grid-glow-color: rgba(139, 92, 246, 0.05);
 }
 
 [data-theme="midnight"].dark {
-  --background: hsl(240 10% 3%);
-  --foreground: hsl(240 10% 98%);
-  --card: hsl(240 10% 5%);
-  --card-foreground: hsl(240 10% 98%);
-  --popover: hsl(240 10% 2%);
-  --popover-foreground: hsl(240 10% 98%);
-  --primary: hsl(263 70% 65%);
-  --primary-foreground: hsl(240 10% 3%);
-  --secondary: hsl(300 20% 65%);
-  --secondary-foreground: hsl(240 10% 3%);
-  --muted: hsl(240 10% 10%);
-  --muted-foreground: hsl(240 10% 70%);
-  --accent: hsl(240 10% 15%);
-  --accent-foreground: hsl(240 10% 98%);
-  --destructive: hsl(0 84% 70%);
-  --destructive-foreground: hsl(240 10% 3%);
-  --border: hsl(240 10% 15%);
-  --input: hsl(240 10% 15%);
-  --ring: hsl(263 70% 65%);
+  --background: 240 10% 3%;
+  --foreground: 240 10% 98%;
+  --card: 240 10% 5%;
+  --card-foreground: 240 10% 98%;
+  --popover: 240 10% 2%;
+  --popover-foreground: 240 10% 98%;
+  --primary: 263 70% 65%;
+  --primary-foreground: 240 10% 3%;
+  --secondary: 300 20% 65%;
+  --secondary-foreground: 240 10% 3%;
+  --muted: 240 10% 10%;
+  --muted-foreground: 240 10% 70%;
+  --accent: 240 10% 15%;
+  --accent-foreground: 240 10% 98%;
+  --destructive: 0 84% 70%;
+  --destructive-foreground: 240 10% 3%;
+  --border: 240 10% 15%;
+  --input: 240 10% 15%;
+  --ring: 263 70% 65%;
+
   /* RGB values for rgba usage */
   --theme-primary-rgb: 147, 51, 234;
   --theme-secondary-rgb: 168, 85, 247;
+
   /* Dynamic theme colors for components */
-  --theme-primary: var(--primary);
-  --theme-secondary: var(--secondary);
-  --theme-accent: var(--accent);
-  --theme-muted: var(--muted);
-  --theme-border: var(--border);
+  --theme-primary: hsl(var(--primary));
+  --theme-secondary: hsl(var(--secondary));
+  --theme-accent: hsl(var(--accent));
+  --theme-muted: hsl(var(--muted));
+  --theme-border: hsl(var(--border));
+
   /* Gradient colors */
   --theme-gradient-1: hsl(263 70% 65%);
   --theme-gradient-2: hsl(300 20% 65%);
@@ -645,10 +714,12 @@
   --theme-gradient-4: hsl(280 40% 75%);
   --theme-gradient-5: hsl(270 50% 60%);
   --theme-gradient-6: hsl(290 30% 80%);
+
   /* Glow effects */
   --text-glow-color: rgba(147, 51, 234, 0.5);
   --text-glow-color-faded: rgba(147, 51, 234, 0.3);
   --hover-glow-color: rgba(147, 51, 234, 0.1);
+
   /* Orb colors */
   --orb-color-primary: rgba(147, 51, 234, 0.3);
   --orb-color-primary-faded: rgba(147, 51, 234, 0.1);
@@ -656,6 +727,7 @@
   --orb-color-secondary-faded: rgba(168, 85, 247, 0.1);
   --orb-color-tertiary: rgba(139, 92, 246, 0.2);
   --orb-color-tertiary-faded: rgba(139, 92, 246, 0.05);
+
   /* Grid colors */
   --grid-line-color: rgba(147, 51, 234, 0.12);
   --grid-glow-color: rgba(147, 51, 234, 0.05);
@@ -839,31 +911,26 @@ h6 {
   animation-delay: 0s;
   animation-duration: 18s;
 }
-
 .particle:nth-child(2) {
   left: 25%;
   animation-delay: 3s;
   animation-duration: 22s;
 }
-
 .particle:nth-child(3) {
   left: 35%;
   animation-delay: 6s;
   animation-duration: 20s;
 }
-
 .particle:nth-child(4) {
   left: 45%;
   animation-delay: 2s;
   animation-duration: 19s;
 }
-
 .particle:nth-child(5) {
   left: 55%;
   animation-delay: 5s;
   animation-duration: 21s;
 }
-
 .particle:nth-child(6) {
   left: 65%;
   animation-delay: 8s;
@@ -993,6 +1060,7 @@ html {
   .no-print {
     display: none !important;
   }
+
   .glass-card {
     background: white !important;
     border: 1px solid #ccc !important;

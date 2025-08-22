@@ -1,7 +1,7 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "@workspace/ui/styles/globals.css";
+import "@workspace/ui/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeInitializer } from "@/components/theme-initializer";
 
@@ -11,7 +11,6 @@ export const metadata: Metadata = {
   title: "Autonix - Your Agentic AI Assistant",
   description:
     "An intelligent AI assistant that can respond in natural language and execute real tasks like creating files, sending emails, and monitoring events.",
-  generator: "v0.dev",
 };
 
 export default function RootLayout({
@@ -23,11 +22,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider
-          attribute="data-theme"
+          attribute="class"
           defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange={false}
-          themes={["light", "dark", "ocean", "forest", "sunset", "midnight"]}
         >
           <ThemeInitializer />
           <div className="min-h-screen bg-background text-foreground">

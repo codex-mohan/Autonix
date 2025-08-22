@@ -1,0 +1,14 @@
+{
+  "name": "autonix-backend",
+  "version": "1.0.0",
+  "description": "The python backend for autonix",
+  "scripts": {
+    "install-deps": "pip install -r pyproject.toml",
+    "dev": "python src/main.py",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.4.1"
+}

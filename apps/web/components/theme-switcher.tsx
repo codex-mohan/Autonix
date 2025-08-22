@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaPalette, FaSun, FaMoon, FaCheck } from "react-icons/fa";
 import { Button } from "@workspace/ui/components/button";
 import { Card, CardContent } from "@workspace/ui/components/card";
 
-interface Theme {
+interface ColorTheme {
   name: string;
   value: string;
   colors: {
@@ -18,7 +18,17 @@ interface Theme {
   description: string;
 }
 
-const themes: Theme[] = [
+const colorThemes: ColorTheme[] = [
+  {
+    name: "Futuristic",
+    value: "futuristic",
+    colors: {
+      primary: "#8b5cf6",
+      secondary: "#a855f7",
+      background: "#0a0a0f",
+    },
+    description: "Dark purple futuristic theme",
+  },
   {
     name: "Catppuccin",
     value: "catppuccin",
@@ -74,153 +84,90 @@ const themes: Theme[] = [
 export function ThemeSwitcher() {
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [currentColorTheme, setCurrentColorTheme] = useState("catppuccin");
-  const [menuPosition, setMenuPosition] = useState({
-    top: 0,
-    bottom: "auto",
-    transform: "none",
-  });
+  const [currentColorTheme, setCurrentColorTheme] = useState("futuristic");
   const { theme, setTheme, resolvedTheme } = useTheme();
+
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
 
-  // Calculate optimal menu position
-  const calculateMenuPosition = () => {
-    if (!triggerRef.current) return;
-
-    const triggerRect = triggerRef.current.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-    const menuHeight = 600;
-    const margin = 16;
-
-    const spaceBelow = viewportHeight - triggerRect.bottom;
-    const spaceAbove = triggerRect.top;
-
-    let position = { top: 0, bottom: "auto" as const, transform: "none" };
-
-    if (spaceBelow >= menuHeight + margin) {
-      position = { top: 0, bottom: "auto", transform: "none" };
-    } else if (spaceAbove >= menuHeight + margin) {
-      position = { top: "auto" as const, bottom: 0, transform: "none" };
-    } else {
-      const triggerCenter = triggerRect.top + triggerRect.height / 2;
-      const menuCenter = menuHeight / 2;
-      const idealTop = triggerCenter - menuCenter;
-      const clampedTop = Math.max(
-        margin,
-        Math.min(idealTop, viewportHeight - menuHeight - margin)
-      );
-      const offsetFromTrigger = clampedTop - triggerRect.top;
-      position = { top: offsetFromTrigger, bottom: "auto", transform: "none" };
+  // Apply color theme to document
+  const applyColorTheme = (colorTheme: string) => {
+    try {
+      document.documentElement.setAttribute("data-theme", colorTheme);
+      if (typeof window !== "undefined" && window.localStorage) {
+        localStorage.setItem("color-theme", colorTheme);
+      }
+      setCurrentColorTheme(colorTheme);
+    } catch (error) {
+      console.warn("Error applying color theme:", error);
     }
-
-    setMenuPosition(position);
-  };
-
-  // Enhanced theme application function
-  const applyTheme = (themeValue: string, isDarkMode = false) => {
-    console.log("Applying theme:", themeValue, "Dark mode:", isDarkMode);
-
-    // Remove all existing theme classes and attributes
-    document.documentElement.classList.remove("light", "dark");
-    document.documentElement.removeAttribute("data-theme");
-
-    // Apply the new theme attribute
-    document.documentElement.setAttribute("data-theme", themeValue);
-
-    // Apply dark/light class
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.add("light");
-    }
-
-    // Store the color theme
-    localStorage.setItem("color-theme", themeValue);
-
-    // Force multiple reflows to ensure CSS updates
-    const forceReflow = () => {
-      document.documentElement.style.display = "none";
-      document.documentElement.offsetHeight;
-      document.documentElement.style.display = "";
-    };
-
-    forceReflow();
-    setTimeout(forceReflow, 50);
-    setTimeout(forceReflow, 100);
-
-    console.log(
-      "Theme applied - data-theme:",
-      document.documentElement.getAttribute("data-theme")
-    );
-    console.log("Classes:", document.documentElement.className);
   };
 
   useEffect(() => {
     setMounted(true);
 
-    // Get stored theme or default to catppuccin
-    const storedTheme = localStorage.getItem("color-theme") || "catppuccin";
-    setCurrentColorTheme(storedTheme);
-
-    // Apply the theme immediately on mount
-    const isDark = resolvedTheme === "dark";
-    applyTheme(storedTheme, isDark);
-  }, [resolvedTheme]);
-
-  // Watch for theme changes and reapply
-  useEffect(() => {
-    if (mounted && resolvedTheme) {
-      const isDark = resolvedTheme === "dark";
-      applyTheme(currentColorTheme, isDark);
+    // Get stored color theme or default to futuristic
+    let storedColorTheme = "futuristic";
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        storedColorTheme = localStorage.getItem("color-theme") || "futuristic";
+      }
+    } catch (error) {
+      console.warn("Error reading from localStorage:", error);
     }
-  }, [resolvedTheme, currentColorTheme, mounted]);
 
-  // Recalculate position when menu opens or window resizes
-  useEffect(() => {
-    if (isOpen) {
-      calculateMenuPosition();
+    setCurrentColorTheme(storedColorTheme);
+    applyColorTheme(storedColorTheme);
+  }, []);
 
-      const handleResize = () => calculateMenuPosition();
-      const handleScroll = () => calculateMenuPosition();
+  useLayoutEffect(() => {
+    if (isOpen && triggerRef.current && menuRef.current) {
+      const triggerRect = triggerRef.current.getBoundingClientRect();
+      const menuRect = menuRef.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const margin = 8;
 
-      window.addEventListener("resize", handleResize);
-      window.addEventListener("scroll", handleScroll, true);
-
-      return () => {
-        window.removeEventListener("resize", handleResize);
-        window.removeEventListener("scroll", handleScroll, true);
+      const newStyle: React.CSSProperties = {
+        position: "fixed",
       };
+
+      // Calculate horizontal position
+      let leftPos = triggerRect.left;
+      if (leftPos + menuRect.width > viewportWidth) {
+        leftPos = triggerRect.right - menuRect.width;
+      }
+      newStyle.left = Math.max(margin, leftPos);
+
+      // Calculate vertical position
+      let topPos = triggerRect.bottom + margin;
+      if (topPos + menuRect.height > viewportHeight) {
+        topPos = triggerRect.top - menuRect.height - margin;
+      }
+      newStyle.top = Math.max(margin, topPos);
+
+      setMenuStyle(newStyle);
     }
   }, [isOpen]);
 
   if (!mounted) {
-    return null;
+    return (
+      <Button variant="ghost" size="icon" className="text-muted-foreground">
+        <FaPalette className="w-4 h-4" />
+      </Button>
+    );
   }
 
   const isDark = resolvedTheme === "dark";
 
-  const handleThemeChange = (themeValue: string) => {
-    console.log("Theme change requested:", themeValue);
-
-    // Set the current color theme
-    setCurrentColorTheme(themeValue);
-
-    // Apply the theme immediately with current dark/light mode
-    applyTheme(themeValue, isDark);
-
+  const handleColorThemeChange = (themeValue: string) => {
+    applyColorTheme(themeValue);
     setIsOpen(false);
   };
 
   const toggleDarkMode = () => {
-    const newMode = isDark ? "light" : "dark";
-    setTheme(newMode);
-  };
-
-  const handleToggleMenu = () => {
-    if (!isOpen) {
-      setTimeout(calculateMenuPosition, 0);
-    }
-    setIsOpen(!isOpen);
+    setTheme(isDark ? "light" : "dark");
   };
 
   return (
@@ -229,8 +176,8 @@ export function ThemeSwitcher() {
         ref={triggerRef}
         variant="ghost"
         size="icon"
-        onClick={handleToggleMenu}
-        className="text-muted-foreground hover:text-foreground"
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-2 m-4 text-muted-foreground hover:text-foreground"
       >
         <FaPalette className="w-4 h-4" />
       </Button>
@@ -243,26 +190,21 @@ export function ThemeSwitcher() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-black/20" // <-- The "backdrop-blur-sm" class has been removed from here
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Theme Switcher Panel */}
+            {/* Theme Switcher Panel (Now with dynamic positioning) */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -10 }}
-              className="absolute left-full z-50 w-80 ml-2"
-              style={{
-                top: menuPosition.top !== "auto" ? menuPosition.top : undefined,
-                bottom:
-                  menuPosition.bottom !== "auto"
-                    ? menuPosition.bottom
-                    : undefined,
-                transform: menuPosition.transform,
-              }}
+              ref={menuRef}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.1, ease: "easeOut" }}
+              className="z-50 w-80"
+              style={menuStyle}
             >
-              <Card className="border-border/50 shadow-2xl">
+              <Card className="border-border/50 shadow-2xl glass-card">
                 <CardContent className="p-6">
                   <div className="space-y-6">
                     {/* Header */}
@@ -308,10 +250,12 @@ export function ThemeSwitcher() {
                         Color Themes
                       </h4>
                       <div className="grid gap-3 max-h-80 overflow-y-auto thin-scrollbar">
-                        {themes.map((themeOption) => (
+                        {colorThemes.map((themeOption) => (
                           <motion.button
                             key={themeOption.value}
-                            onClick={() => handleThemeChange(themeOption.value)}
+                            onClick={() =>
+                              handleColorThemeChange(themeOption.value)
+                            }
                             className={`relative flex items-center space-x-3 p-3 rounded-lg border transition-all duration-200 text-left ${
                               currentColorTheme === themeOption.value
                                 ? "border-primary bg-primary/5 ring-1 ring-primary/20"
@@ -352,24 +296,6 @@ export function ThemeSwitcher() {
                             </div>
                           </motion.button>
                         ))}
-                      </div>
-                    </div>
-
-                    {/* Debug Info */}
-                    <div className="pt-3 border-t border-border">
-                      <div className="text-xs text-muted-foreground space-y-1">
-                        <div>Theme: {currentColorTheme}</div>
-                        <div>Mode: {resolvedTheme}</div>
-                        <div>
-                          Data Theme:{" "}
-                          {document?.documentElement?.getAttribute(
-                            "data-theme"
-                          ) || "none"}
-                        </div>
-                        <div>
-                          Classes:{" "}
-                          {document?.documentElement?.className || "none"}
-                        </div>
                       </div>
                     </div>
                   </div>
