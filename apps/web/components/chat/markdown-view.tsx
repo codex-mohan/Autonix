@@ -19,10 +19,9 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import dynamic from "next/dynamic";
-import { tokyoNightStorm } from "@uiw/codemirror-themes-all";
-
+import { tokyoNight } from "@uiw/codemirror-themes-all";
+import { useTheme } from "next-themes";
 import SmartLink from "@/components/smart-link";
-// UPDATED: Import the new ZoomableImageWithLoader component
 import ZoomableImageWithLoader from "./image-with-loader";
 
 const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
@@ -56,7 +55,7 @@ const languageMap: Record<string, () => ReturnType<typeof python>> = {
 const CodeBlock: React.FC<{ code: string; langHint?: string }> = React.memo(
   ({ code, langHint }) => {
     const [isCopied, setIsCopied] = useState(false);
-
+    const { theme } = useTheme();
     // FIXED: Use the new languageMap instead of the dynamic loader
     const languageExt = useMemo(() => {
       if (!langHint) return null;
@@ -86,14 +85,14 @@ const CodeBlock: React.FC<{ code: string; langHint?: string }> = React.memo(
     };
 
     return (
-      <div className="mt-4 overflow-hidden rounded-xl border border-zinc-700/70">
-        <div className="flex items-center justify-between bg-zinc-800/80 px-4 py-1.5 text-xs">
-          <span className="font-semibold uppercase text-zinc-300">
+      <div className="mt-4 overflow-hidden rounded-xl border border-border">
+        <div className="flex items-center justify-between bg-muted/50 px-4 py-1.5 text-xs">
+          <span className="font-semibold uppercase text-muted-foreground">
             {langHint || "code"}
           </span>
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-zinc-300 transition-colors hover:bg-zinc-700/80"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-muted"
             title="Copy code"
           >
             {isCopied ? (
@@ -140,25 +139,43 @@ const CodeBlock: React.FC<{ code: string; langHint?: string }> = React.memo(
           extensions={extensions}
           editable={false}
           theme={[
-            tokyoNightStorm,
-            EditorView.theme({
-              "&": {
-                fontSize: "0.875rem",
+            tokyoNight,
+            EditorView.theme(
+              {
+                "&": {
+                  fontSize: "0.875rem",
+                  backgroundColor: "hsl(var(--background))",
+                  color: "hsl(var(--foreground))",
+                },
+                ".cm-editor": {
+                  borderRadius: "0",
+                },
+                ".cm-scroller": {
+                  paddingTop: "0.5rem",
+                  paddingBottom: "0.5rem",
+                  fontFamily:
+                    "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                },
+                ".cm-gutters": {
+                  backgroundColor: "hsl(var(--muted))",
+                  borderRight: "1px solid hsl(var(--border))",
+                  color: "hsl(var(--muted-foreground))",
+                },
+                ".cm-content": {
+                  color: "hsl(var(--foreground))",
+                },
+                ".cm-line": {
+                  color: "hsl(var(--foreground))",
+                },
+                ".cm-activeLine": {
+                  backgroundColor: "hsl(var(--muted)/0.5)",
+                },
+                ".cm-activeLineGutter": {
+                  backgroundColor: "hsl(var(--muted))",
+                },
               },
-              ".cm-editor": {
-                borderRadius: "0",
-              },
-              ".cm-scroller": {
-                paddingTop: "0.5rem",
-                paddingBottom: "0.5rem",
-                fontFamily:
-                  "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-              },
-              ".cm-gutters": {
-                backgroundColor: "#282c34",
-                borderRight: "1px solid #3f434e",
-              },
-            }),
+              { dark: theme === "dark" }
+            ),
           ]}
         />
       </div>
@@ -193,10 +210,7 @@ const MarkdownView: React.FC<{ text: string }> = React.memo(({ text }) => {
         // If there's no language match, we treat it as an inline code snippet.
         if (!match) {
           return (
-            <code
-              className="rounded bg-zinc-800 px-1.5 py-1 text-[0.9em] text-purple-300"
-              {...props}
-            >
+            <code className="rounded bg-muted px-1.5 py-1 text-[0.9em] text-primary">
               {children}
             </code>
           );
@@ -206,15 +220,17 @@ const MarkdownView: React.FC<{ text: string }> = React.memo(({ text }) => {
         return <CodeBlock code={raw} langHint={lang} />;
       },
       p: ({ children }: any) => (
-        <p className="leading-7 [&:not(:first-child)]:mt-4">{children}</p>
+        <div className="leading-7 text-foreground/80 [&:not(:first-child)]:mt-4">
+          {children}
+        </div>
       ),
       h1: ({ children }: any) => (
-        <h1 className="mt-6 border-b border-zinc-700 pb-2 text-2xl font-semibold tracking-tight">
+        <h1 className="mt-6 border-b border-border pb-2 text-2xl font-semibold tracking-tight">
           {children}
         </h1>
       ),
       h2: ({ children }: any) => (
-        <h2 className="mt-8 border-b border-zinc-700 pb-2 text-xl font-semibold tracking-tight">
+        <h2 className="mt-8 border-b border-border pb-2 text-xl font-semibold tracking-tight">
           {children}
         </h2>
       ),
@@ -232,40 +248,30 @@ const MarkdownView: React.FC<{ text: string }> = React.memo(({ text }) => {
       li: (props: any) => <li className="" {...props} />,
       blockquote: (props: any) => (
         <blockquote
-          className="mt-4 border-l-2 border-zinc-600 pl-6 italic text-zinc-400"
+          className="mt-4 border-l-2 border-border pl-6 italic text-muted-foreground"
           {...props}
         />
       ),
       table: (props: any) => (
-        <div className="my-6 w-full overflow-y-auto">
+        <div className="my-6 w-full overflow-y-auto rounded-lg border">
           <table className="w-full" {...props} />
         </div>
       ),
-      thead: (props: any) => (
-        <thead className="border-b border-zinc-600 bg-zinc-600" {...props} />
-      ),
+      thead: (props: any) => <thead className="bg-muted" {...props} />,
       tr: (props: any) => (
-        <tr
-          className="m-0 border-t border-zinc-700 p-0 even:bg-zinc-800/50"
-          {...props}
-        />
+        <tr className="m-0 p-0 even:bg-muted/60 odd:bg-muted/30 " {...props} />
       ),
       th: (props: any) => (
-        <th
-          className="border border-zinc-600 px-4 py-2 text-left font-bold"
-          {...props}
-        />
+        <th className="px-4 py-2 text-left font-bold" {...props} />
       ),
-      td: (props: any) => (
-        <td className="border border-zinc-600 px-4 py-2 text-left" {...props} />
-      ),
+      td: (props: any) => <td className="px-4 py-2 text-left" {...props} />,
       a: ({ node, href, children, ...props }: any) => {
         const videoId = href ? getYouTubeVideoId(href) : null;
 
         // If it's a YouTube link, render an embed
         if (videoId) {
           return (
-            <div className="my-4 aspect-video overflow-hidden rounded-lg border border-zinc-700 bg-black">
+            <div className="my-4 aspect-video overflow-hidden rounded-lg border border-border bg-black">
               <iframe
                 src={`https://www.youtube.com/embed/${videoId}`}
                 title="YouTube video player"
@@ -289,7 +295,7 @@ const MarkdownView: React.FC<{ text: string }> = React.memo(({ text }) => {
         // Also check if an image tag is being used to embed a YouTube video
         if (videoId) {
           return (
-            <div className="my-4 aspect-video overflow-hidden rounded-lg border border-zinc-700 bg-black">
+            <div className="my-4 aspect-video overflow-hidden rounded-lg border border-border bg-black">
               <iframe
                 src={`https://www.youtube.com/embed/${videoId}`}
                 title="YouTube video player"

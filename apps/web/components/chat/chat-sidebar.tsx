@@ -270,7 +270,7 @@ export function ChatSidebar({
                       setActiveItem(item.id);
                     }
                   }}
-                  className={`w-10 h-10 rounded-lg transition-all duration-200 ${
+                  className={`w-10 h-10 rounded-lg transition-all duration-200 flex items-center justify-center ${
                     activeItem === item.id
                       ? "bg-primary/10 text-primary border border-primary/20"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -306,7 +306,7 @@ export function ChatSidebar({
                   variant="ghost"
                   size="icon"
                   onClick={() => setActiveItem(item.id)}
-                  className={`w-10 h-10 rounded-lg transition-all duration-200 ${
+                  className={`w-10 h-10 rounded-lg transition-all duration-200 flex items-center justify-center ${
                     activeItem === item.id
                       ? "bg-primary/10 text-primary border border-primary/20"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -339,32 +339,32 @@ export function ChatSidebar({
               </motion.div>
             ))}
 
-            {/* Theme Switcher */}
+            {/* Theme Switcher & Settings */}
             <motion.div
               className="pt-2 border-t border-border"
               variants={themeSwitcherVariants as any}
               initial="hidden"
               animate={isLoaded ? "visible" : "hidden"}
             >
-              <ThemeSwitcher />
-            </motion.div>
-
-            {/* Settings */}
-            <motion.div
-              variants={settingsVariants as any}
-              initial="hidden"
-              animate={isLoaded ? "visible" : "hidden"}
-              whileHover="hover"
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-10 h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                title="Settings"
-              >
-                <FaCog className="w-4 h-4" />
-              </Button>
+              <div className="flex flex-col space-y-4">
+                <ThemeSwitcher />
+                <motion.div
+                  variants={settingsVariants as any}
+                  initial="hidden"
+                  animate={isLoaded ? "visible" : "hidden"}
+                  whileHover="hover"
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-10 h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-center"
+                    title="Settings"
+                  >
+                    <FaCog className="w-4 h-4" />
+                  </Button>
+                </motion.div>
+              </div>
             </motion.div>
           </div>
         </motion.div>

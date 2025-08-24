@@ -69,7 +69,7 @@ const SmartLink: React.FC<{ href: string; children: React.ReactNode }> = ({
     >
       <a
         href={href}
-        className="inline-flex items-center gap-1 text-purple-400 underline decoration-purple-400/50 underline-offset-2 transition-colors hover:text-purple-300"
+        className="inline-flex items-center gap-1 text-primary underline decoration-primary/50 underline-offset-2 transition-colors hover:text-primary/80"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -82,7 +82,7 @@ const SmartLink: React.FC<{ href: string; children: React.ReactNode }> = ({
         <div
           // These data attributes mimic Radix for Shadcn-like CSS animations
           data-state={isTooltipVisible ? "open" : "closed"}
-          className="absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-xs -translate-x-1/2 rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm shadow-lg animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
+          className="absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-xs -translate-x-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground shadow-lg animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
@@ -91,8 +91,8 @@ const SmartLink: React.FC<{ href: string; children: React.ReactNode }> = ({
             </div>
           ) : (
             <div>
-              <p className="font-semibold text-zinc-100">{title}</p>
-              <p className="mt-1 max-w-full truncate text-xs text-zinc-400">
+              <p className="font-semibold text-foreground">{title}</p>
+              <p className="mt-1 max-w-full truncate text-xs text-muted-foreground">
                 {href}
               </p>
             </div>

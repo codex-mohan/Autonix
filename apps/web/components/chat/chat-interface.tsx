@@ -16,7 +16,7 @@ export function ChatInterface() {
         isPinned={isPinned}
         onPinChange={setIsPinned}
       />
-      <ChatMain selectedChat={selectedChat} isPinned={isPinned} />
+      <ChatMain selectedChat={selectedChat} />
     </div>
   )
 }

@@ -68,7 +68,7 @@ const GradientButton: React.FC<GradientButtonProps> = ({
         disabled={disabled}
         style={{ ...widthStyle, ...heightStyle }}
         className={cn(
-          "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-6 py-3 font-medium transition-all duration-300 ease-in-out text-sm text-center",
+          "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-6 py-3 font-medium transition-all duration-300 ease-in-out text-center",
           "focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-2 focus:ring-offset-transparent",
           "active:scale-95 active:shadow-inner",
           "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",

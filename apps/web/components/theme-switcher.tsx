@@ -171,13 +171,13 @@ export function ThemeSwitcher() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative justify-center items-center">
       <Button
         ref={triggerRef}
         variant="ghost"
         size="icon"
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 m-4 text-muted-foreground hover:text-foreground"
+        className="w-10 h-10 text-muted-foreground hover:text-foreground"
       >
         <FaPalette className="w-4 h-4" />
       </Button>
