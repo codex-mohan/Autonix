@@ -83,7 +83,16 @@ export default function DeepseekLikeChat() {
         "Here's a standard image:\n" +
         "![A random placeholder image from Picsum Photos](https://picsum.photos/seed/picsum/600/400)\n\n" +
         "And here is an embedded YouTube video, rendered just by pasting the link:\n" +
-        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ\n\n" +
+        "### Mermaid Diagrams\n\n" +
+        "And here is a Mermaid diagram:\n\n" +
+        "```mermaid\n" +
+        "graph TD;\n" +
+        "    A-->B;\n" +
+        "    A-->C;\n" +
+        "    B-->D;\n" +
+        "    C-->D;\n" +
+        "```",
     },
   ]);
   const [draft, setDraft] = useState<string>("");
