@@ -69,7 +69,7 @@ const ZoomableImageWithLoader = ({
   };
 
   return (
-    <div className="relative group">
+    <div className="relative group flex justify-center items-center">
       {/* The clickable thumbnail area */}
       <button
         onClick={openModal}

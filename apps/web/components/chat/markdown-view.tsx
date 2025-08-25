@@ -600,8 +600,8 @@ const MarkdownView: React.FC<{ text: string }> = React.memo(({ text }) => {
           <ZoomableImageWithLoader
             src={src}
             alt={alt}
-            // Add sizing and margin classes for the thumbnail display
-            className="my-4 aspect-video w-full max-w-xl"
+            // Add sizing and margin classes for the thumbnail display and align center
+            className="my-4 aspect-video w-full max-w-xl rounded-lg"
             {...props}
           />
         );
