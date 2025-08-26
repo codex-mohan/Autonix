@@ -12,11 +12,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@codemirror/gutter": "^0.19.9",
+    "@codemirror/lang-cpp": "^6.0.3",
+    "@codemirror/lang-html": "^6.4.9",
     "@codemirror/lang-javascript": "^6.2.4",
+    "@codemirror/lang-json": "^6.0.2",
     "@codemirror/lang-markdown": "^6.3.4",
     "@codemirror/lang-python": "github:codemirror/lang-python",
+    "@codemirror/lang-sql": "^6.9.1",
     "@codemirror/language": "^6.11.3",
+    "@codemirror/language-data": "^6.5.1",
     "@codemirror/view": "^6.38.1",
     "@langchain/core": "^0.3.72",
     "@langchain/langgraph-sdk": "^0.0.109",

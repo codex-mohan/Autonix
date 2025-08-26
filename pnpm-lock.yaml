@@ -31,18 +31,33 @@ importers:
       '@codemirror/gutter':
         specifier: ^0.19.9
         version: 0.19.9
+      '@codemirror/lang-cpp':
+        specifier: ^6.0.3
+        version: 6.0.3
+      '@codemirror/lang-html':
+        specifier: ^6.4.9
+        version: 6.4.9
       '@codemirror/lang-javascript':
         specifier: ^6.2.4
         version: 6.2.4
+      '@codemirror/lang-json':
+        specifier: ^6.0.2
+        version: 6.0.2
       '@codemirror/lang-markdown':
         specifier: ^6.3.4
         version: 6.3.4
       '@codemirror/lang-python':
         specifier: github:codemirror/lang-python
         version: https://codeload.github.com/codemirror/lang-python/tar.gz/b29a2dd8f52bd1f3194d9a0d1d65631cda1c3c47
+      '@codemirror/lang-sql':
+        specifier: ^6.9.1
+        version: 6.9.1
       '@codemirror/language':
         specifier: ^6.11.3
         version: 6.11.3
+      '@codemirror/language-data':
+        specifier: ^6.5.1
+        version: 6.5.1
       '@codemirror/view':
         specifier: ^6.38.1
         version: 6.38.1

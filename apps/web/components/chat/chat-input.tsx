@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   FaSearch,
@@ -27,6 +27,7 @@ import {
   FaCog,
   FaNewspaper,
   FaWikipediaW,
+  FaStopCircle, // Import stop icon
 } from "react-icons/fa";
 import { PiWaveformBold } from "react-icons/pi";
 import { Button } from "@workspace/ui/components/button";
@@ -34,7 +35,6 @@ import { Input } from "@workspace/ui/components/input";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 import {
@@ -45,43 +45,20 @@ import {
 } from "@workspace/ui/components/dropdown-menu";
 import GradientButton from "@workspace/ui/components/gradient-button";
 
-export function ChatInput() {
+import { useChatStore } from "../../lib/store";
+import type { UseStream } from "@langchain/langgraph-sdk/react";
+import type { Message } from "@langchain/langgraph-sdk";
+
+interface ChatInputProps {
+  thread: UseStream<{ messages: Message[] }>;
+}
+
+export function ChatInput({ thread }: ChatInputProps) {
   const [inputValue, setInputValue] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [activeLeftIcon, setActiveLeftIcon] = useState("search");
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Professional animation variants with reduced bounce
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.4,
-        staggerChildren: 0.15,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      },
-    },
-  };
-
-  const titleVariants = {
-    hidden: {
-      y: -30,
-      opacity: 0,
-      scale: 0.95,
-    },
-    visible: {
-      y: 0,
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.5,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      },
-    },
-  };
+  const { addMessage, setIsLoading, setShowInitialUI } = useChatStore();
 
   const searchContainerVariants = {
     hidden: {
@@ -126,46 +103,20 @@ export function ChatInput() {
     },
   };
 
-  const suggestionVariants = {
-    hidden: {
-      y: 15,
-      opacity: 0,
-      scale: 0.95,
-    },
-    visible: {
-      y: 0,
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      },
-    },
-  };
-
-  const footerVariants = {
-    hidden: { y: 15, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        delay: 0.6,
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      },
-    },
-  };
-
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    console.log("Submitting:", inputValue);
+    const userMessage: Message = { type: "human", content: inputValue };
+    addMessage(userMessage);
+    thread.submit({ messages: [userMessage] });
     setInputValue("");
+    setShowInitialUI(false);
+  };
+
+  const handleStop = () => {
+    thread.stop();
+    setIsLoading(false);
   };
 
   const handleImageOption = (option: string) => {
@@ -193,463 +144,397 @@ export function ChatInput() {
   };
 
   return (
-    <TooltipProvider>
-      <motion.div
-        className="flex-1 flex flex-col bg-background transition-all duration-300"
-        variants={containerVariants as any}
-        initial="hidden"
-        animate={isLoaded ? "visible" : "hidden"}
-      >
-        {/* Main Content Area */}
-        <div className="flex-1 flex items-center justify-center px-8">
-          <div className="w-full max-w-4xl">
-            {/* Brand Name */}
+    <motion.div
+      className="relative"
+      variants={searchContainerVariants as any}
+      initial="hidden"
+      animate="visible"
+    >
+      <form onSubmit={handleSubmit} className="relative">
+        <motion.div
+          className="relative bg-card border border-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 p-6"
+          whileHover={{
+            scale: 1.005,
+            boxShadow: "0 8px 32px rgba(139, 92, 246, 0.08)",
+            transition: { duration: 0.2 },
+          }}
+        >
+          {/* Text Input Area */}
+          <div className="mb-6">
+            <Input
+              ref={inputRef}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Ask anything or @mention a Space"
+              className="w-full border-0 bg-transparent px-0 py-2 text-lg placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 h-auto"
+            />
+          </div>
+
+          {/* Icon Groups */}
+          <div className="flex items-center justify-between">
+            {/* Left Icon Group */}
             <motion.div
-              className="text-center mb-12"
-              variants={titleVariants as any}
+              className="flex items-center space-x-3"
+              variants={iconGroupVariants}
             >
-              <motion.h1
-                className="text-5xl font-black text-foreground mb-2"
-                whileHover={{
-                  scale: 1.02,
-                  textShadow: "0 0 20px rgba(139, 92, 246, 0.3)",
-                  transition: { duration: 0.2 },
-                }}
-              >
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary uppercase font-black">
-                  Autonix
-                </span>
-              </motion.h1>
+              {/* Animate each icon */}
+              <motion.div variants={iconVariants as any}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          setActiveLeftIcon(
+                            activeLeftIcon === "search" ? "" : "search"
+                          )
+                        }
+                        className={`w-10 h-10 rounded-xl transition-all duration-200 ${
+                          activeLeftIcon === "search"
+                            ? "bg-primary text-primary-foreground shadow-md"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        <FaSearch className="w-4 h-4" />
+                      </Button>
+                    </motion.div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Search</p>
+                  </TooltipContent>
+                </Tooltip>
+              </motion.div>
+
+              {/* Image - Dropdown menu */}
+              <motion.div variants={iconVariants as any}>
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                          >
+                            <FaImage className="w-4 h-4" />
+                          </Button>
+                        </motion.div>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Image & Media</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="start" className="w-48">
+                    <DropdownMenuItem
+                      onClick={() => handleImageOption("camera")}
+                    >
+                      <FaCamera className="w-4 h-4 mr-2" />
+                      Take Photo
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleImageOption("upload")}
+                    >
+                      <FaFileImage className="w-4 h-4 mr-2" />
+                      Upload Image
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleImageOption("video")}
+                    >
+                      <FaVideo className="w-4 h-4 mr-2" />
+                      Record Video
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </motion.div>
+
+              {/* Location - Dropdown menu */}
+              <motion.div variants={iconVariants as any}>
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                          >
+                            <FaMapMarkerAlt className="w-4 h-4" />
+                          </Button>
+                        </motion.div>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Location Services</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="start" className="w-48">
+                    <DropdownMenuItem
+                      onClick={() => handleLocationOption("current")}
+                    >
+                      <FaMapPin className="w-4 h-4 mr-2" />
+                      Current Location
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleLocationOption("nearby")}
+                    >
+                      <FaCompass className="w-4 h-4 mr-2" />
+                      Find Nearby
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleLocationOption("directions")}
+                    >
+                      <FaRoute className="w-4 h-4 mr-2" />
+                      Get Directions
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </motion.div>
             </motion.div>
 
-            {/* Search Input Container */}
+            {/* Right Icon Group */}
             <motion.div
-              className="relative"
-              variants={searchContainerVariants as any}
+              className="flex items-center space-x-3"
+              variants={iconGroupVariants}
             >
-              <form onSubmit={handleSubmit} className="relative">
-                <motion.div
-                  className="relative bg-card border border-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 p-6"
-                  whileHover={{
-                    scale: 1.005,
-                    boxShadow: "0 8px 32px rgba(139, 92, 246, 0.08)",
-                    transition: { duration: 0.2 },
-                  }}
-                >
-                  {/* Text Input Area */}
-                  <div className="mb-6">
-                    <Input
-                      ref={inputRef}
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      placeholder="Ask anything or @mention a Space"
-                      className="w-full border-0 bg-transparent px-0 py-2 text-lg placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 h-auto"
-                    />
-                  </div>
+              {/* CPU - Dropdown menu */}
+              <motion.div variants={iconVariants as any}>
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                          >
+                            <FaMicrochip className="w-4 h-4" />
+                          </Button>
+                        </motion.div>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>AI Processing</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem
+                      onClick={() => handleCpuOption("analyze")}
+                    >
+                      <FaBrain className="w-4 h-4 mr-2" />
+                      Deep Analysis
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleCpuOption("process")}
+                    >
+                      <FaServer className="w-4 h-4 mr-2" />
+                      Process Data
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleCpuOption("optimize")}
+                    >
+                      <FaCog className="w-4 h-4 mr-2" />
+                      Optimize Task
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </motion.div>
 
-                  {/* Icon Groups */}
-                  <div className="flex items-center justify-between">
-                    {/* Left Icon Group */}
+              {/* Globe - Dropdown menu */}
+              <motion.div variants={iconVariants as any}>
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                          >
+                            <FaGlobe className="w-4 h-4" />
+                          </Button>
+                        </motion.div>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Web & Research</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem
+                      onClick={() => handleGlobeOption("search")}
+                    >
+                      <FaGlobe className="w-4 h-4 mr-2" />
+                      Web Search
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleGlobeOption("news")}>
+                      <FaNewspaper className="w-4 h-4 mr-2" />
+                      Latest News
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleGlobeOption("wiki")}>
+                      <FaWikipediaW className="w-4 h-4 mr-2" />
+                      Wikipedia
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </motion.div>
+
+              {/* Attachment - Dropdown menu */}
+              <motion.div variants={iconVariants as any}>
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                          >
+                            <FaPaperclip className="w-4 h-4" />
+                          </Button>
+                        </motion.div>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Attach Files</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem
+                      onClick={() => handleAttachmentOption("document")}
+                    >
+                      <FaFileAlt className="w-4 h-4 mr-2" />
+                      Document
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleAttachmentOption("pdf")}
+                    >
+                      <FaFilePdf className="w-4 h-4 mr-2" />
+                      PDF File
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleAttachmentOption("code")}
+                    >
+                      <FaFileCode className="w-4 h-4 mr-2" />
+                      Code File
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </motion.div>
+
+              {/* Audio Wave - Dropdown menu */}
+              <motion.div variants={iconVariants as any}>
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                          >
+                            <PiWaveformBold className="w-4 h-4" />
+                          </Button>
+                        </motion.div>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Audio & Voice</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem
+                      onClick={() => handleAudioOption("record")}
+                    >
+                      <FaMicrophone className="w-4 h-4 mr-2" />
+                      Record Audio
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleAudioOption("voice")}
+                    >
+                      <PiWaveformBold className="w-4 h-4 mr-2" />
+                      Voice Message
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </motion.div>
+
+              {/* Always show gradient send button with tooltip */}
+              <motion.div variants={iconVariants as any}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
                     <motion.div
-                      className="flex items-center space-x-3"
-                      variants={iconGroupVariants}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      {/* Animate each icon */}
-                      <motion.div variants={iconVariants as any}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <motion.div
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.98 }}
-                            >
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() =>
-                                  setActiveLeftIcon(
-                                    activeLeftIcon === "search" ? "" : "search"
-                                  )
-                                }
-                                className={`w-10 h-10 rounded-xl transition-all duration-200 ${
-                                  activeLeftIcon === "search"
-                                    ? "bg-primary text-primary-foreground shadow-md"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                                }`}
-                              >
-                                <FaSearch className="w-4 h-4" />
-                              </Button>
-                            </motion.div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Search</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </motion.div>
-
-                      {/* Image - Dropdown menu */}
-                      <motion.div variants={iconVariants as any}>
-                        <DropdownMenu>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <DropdownMenuTrigger asChild>
-                                <motion.div
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.98 }}
-                                >
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
-                                  >
-                                    <FaImage className="w-4 h-4" />
-                                  </Button>
-                                </motion.div>
-                              </DropdownMenuTrigger>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Image & Media</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          <DropdownMenuContent align="start" className="w-48">
-                            <DropdownMenuItem
-                              onClick={() => handleImageOption("camera")}
-                            >
-                              <FaCamera className="w-4 h-4 mr-2" />
-                              Take Photo
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleImageOption("upload")}
-                            >
-                              <FaFileImage className="w-4 h-4 mr-2" />
-                              Upload Image
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleImageOption("video")}
-                            >
-                              <FaVideo className="w-4 h-4 mr-2" />
-                              Record Video
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </motion.div>
-
-                      {/* Location - Dropdown menu */}
-                      <motion.div variants={iconVariants as any}>
-                        <DropdownMenu>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <DropdownMenuTrigger asChild>
-                                <motion.div
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.98 }}
-                                >
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
-                                  >
-                                    <FaMapMarkerAlt className="w-4 h-4" />
-                                  </Button>
-                                </motion.div>
-                              </DropdownMenuTrigger>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Location Services</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          <DropdownMenuContent align="start" className="w-48">
-                            <DropdownMenuItem
-                              onClick={() => handleLocationOption("current")}
-                            >
-                              <FaMapPin className="w-4 h-4 mr-2" />
-                              Current Location
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleLocationOption("nearby")}
-                            >
-                              <FaCompass className="w-4 h-4 mr-2" />
-                              Find Nearby
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleLocationOption("directions")}
-                            >
-                              <FaRoute className="w-4 h-4 mr-2" />
-                              Get Directions
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </motion.div>
+                      {thread.isLoading ? (
+                        <Button
+                          type="button"
+                          onClick={handleStop}
+                          className="!w-10 !h-10 !p-0 !rounded-xl mx-2 bg-red-500 hover:bg-red-600 text-white"
+                        >
+                          <FaStopCircle className="w-4 h-4" />
+                        </Button>
+                      ) : (
+                        <GradientButton
+                          type="submit"
+                          fromColor="from-primary"
+                          toColor="to-secondary"
+                          width={"auto"}
+                          height={"auto"}
+                          onClick={handleSubmit as any}
+                          className="!w-10 !h-10 !p-0 !rounded-xl mx-2"
+                        >
+                          <FaPaperPlane className="w-4 h-4 text-foreground" />
+                        </GradientButton>
+                      )}
                     </motion.div>
-
-                    {/* Right Icon Group */}
-                    <motion.div
-                      className="flex items-center space-x-3"
-                      variants={iconGroupVariants}
-                    >
-                      {/* CPU - Dropdown menu */}
-                      <motion.div variants={iconVariants as any}>
-                        <DropdownMenu>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <DropdownMenuTrigger asChild>
-                                <motion.div
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.98 }}
-                                >
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
-                                  >
-                                    <FaMicrochip className="w-4 h-4" />
-                                  </Button>
-                                </motion.div>
-                              </DropdownMenuTrigger>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>AI Processing</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem
-                              onClick={() => handleCpuOption("analyze")}
-                            >
-                              <FaBrain className="w-4 h-4 mr-2" />
-                              Deep Analysis
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleCpuOption("process")}
-                            >
-                              <FaServer className="w-4 h-4 mr-2" />
-                              Process Data
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleCpuOption("optimize")}
-                            >
-                              <FaCog className="w-4 h-4 mr-2" />
-                              Optimize Task
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </motion.div>
-
-                      {/* Globe - Dropdown menu */}
-                      <motion.div variants={iconVariants as any}>
-                        <DropdownMenu>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <DropdownMenuTrigger asChild>
-                                <motion.div
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.98 }}
-                                >
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
-                                  >
-                                    <FaGlobe className="w-4 h-4" />
-                                  </Button>
-                                </motion.div>
-                              </DropdownMenuTrigger>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Web & Research</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem
-                              onClick={() => handleGlobeOption("search")}
-                            >
-                              <FaGlobe className="w-4 h-4 mr-2" />
-                              Web Search
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleGlobeOption("news")}
-                            >
-                              <FaNewspaper className="w-4 h-4 mr-2" />
-                              Latest News
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleGlobeOption("wiki")}
-                            >
-                              <FaWikipediaW className="w-4 h-4 mr-2" />
-                              Wikipedia
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </motion.div>
-
-                      {/* Attachment - Dropdown menu */}
-                      <motion.div variants={iconVariants as any}>
-                        <DropdownMenu>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <DropdownMenuTrigger asChild>
-                                <motion.div
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.98 }}
-                                >
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
-                                  >
-                                    <FaPaperclip className="w-4 h-4" />
-                                  </Button>
-                                </motion.div>
-                              </DropdownMenuTrigger>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Attach Files</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem
-                              onClick={() => handleAttachmentOption("document")}
-                            >
-                              <FaFileAlt className="w-4 h-4 mr-2" />
-                              Document
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleAttachmentOption("pdf")}
-                            >
-                              <FaFilePdf className="w-4 h-4 mr-2" />
-                              PDF File
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleAttachmentOption("code")}
-                            >
-                              <FaFileCode className="w-4 h-4 mr-2" />
-                              Code File
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </motion.div>
-
-                      {/* Audio Wave - Dropdown menu */}
-                      <motion.div variants={iconVariants as any}>
-                        <DropdownMenu>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <DropdownMenuTrigger asChild>
-                                <motion.div
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.98 }}
-                                >
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
-                                  >
-                                    <PiWaveformBold className="w-4 h-4" />
-                                  </Button>
-                                </motion.div>
-                              </DropdownMenuTrigger>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Audio & Voice</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem
-                              onClick={() => handleAudioOption("record")}
-                            >
-                              <FaMicrophone className="w-4 h-4 mr-2" />
-                              Record Audio
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleAudioOption("voice")}
-                            >
-                              <PiWaveformBold className="w-4 h-4 mr-2" />
-                              Voice Message
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </motion.div>
-
-                      {/* Always show gradient send button with tooltip */}
-                      <motion.div variants={iconVariants as any}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <motion.div
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <GradientButton
-                                type="submit"
-                                fromColor="from-primary"
-                                toColor="to-secondary"
-                                width={"auto"}
-                                height={"auto"}
-                                onClick={handleSubmit as any}
-                                className="!w-10 !h-10 !p-0 !rounded-xl mx-2"
-                              >
-                                <FaPaperPlane className="w-4 h-4 text-foreground" />
-                              </GradientButton>
-                            </motion.div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Send Message</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </motion.div>
-                    </motion.div>
-                  </div>
-                </motion.div>
-              </form>
-
-              {/* Suggestions */}
-              <motion.div
-                className="flex justify-center mt-6 space-x-4 flex-wrap gap-2"
-                variants={iconGroupVariants}
-              >
-                {[
-                  "What's trending today?",
-                  "Help me write an email",
-                  "Plan my weekend",
-                  "Explain quantum computing",
-                ].map((suggestion, index) => (
-                  <motion.div
-                    key={index}
-                    variants={suggestionVariants as any}
-                    custom={index}
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setInputValue(suggestion)}
-                      className="text-xs px-4 py-2 rounded-full border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
-                    >
-                      {suggestion}
-                    </Button>
-                  </motion.div>
-                ))}
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{thread.isLoading ? "Stop Stream" : "Send Message"}</p>
+                  </TooltipContent>
+                </Tooltip>
               </motion.div>
             </motion.div>
           </div>
-        </div>
-
-        {/* Footer */}
-        <motion.div
-          className="p-4 text-center"
-          variants={footerVariants as any}
-        >
-          <p className="text-xs text-muted-foreground">
-            Autonix can make mistakes. Consider checking important information.
-          </p>
         </motion.div>
-      </motion.div>
-    </TooltipProvider>
+      </form>
+    </motion.div>
   );
 }

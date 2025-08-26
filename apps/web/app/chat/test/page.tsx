@@ -57,7 +57,8 @@ export default function DeepseekLikeChat() {
         "| LaTeX           | ✅ Supported |\n\n" +
         "> Blockquotes are useful for highlighting important notes or quotes from a source.\n\n" +
         "### Code Highlighting\n" +
-        "I can highlight code in various languages, including blocks without a specified language.\n\n" +
+        "I can highlight code in various languages.\n\n" +
+        "**Python**\n" +
         "```python\n" +
         "def get_user_data(user_id: int) -> dict:\n" +
         '    """Fetches user data from a database."""\n' +
@@ -69,13 +70,115 @@ export default function DeepseekLikeChat() {
         "    except Exception as e:\n" +
         '        print(f"An error occurred: {e}")\n' +
         "        return {}\n" +
-        "```\n" +
-        "And another example in JavaScript:\n" +
-        "```js\n" +
-        "function greet(name) {\n" +
-        "  console.log(`Hello, ${name}!`);\n" +
+        "```\n\n" +
+        "**C++**\n" +
+        "```cpp\n" +
+        "#include <iostream>\n" +
+        "#include <vector>\n" +
+        "\n" +
+        "int main() {\n" +
+        '    std::vector<std::string> fruits = {"Apple", "Banana", "Orange"};\n' +
+        "    for (const auto& fruit : fruits) {\n" +
+        "        std::cout << fruit << std::endl;\n" +
+        "    }\n" +
+        "    return 0;\n" +
         "}\n" +
-        "greet('John');\n" +
+        "```\n\n" +
+        "**TSX (React Component)**\n" +
+        "```tsx\n" +
+        "type ButtonProps = {\n" +
+        "  onClick: () => void;\n" +
+        "  children: React.ReactNode;\n" +
+        "};\n\n" +
+        "const Button: React.FC<ButtonProps> = ({ onClick, children }) => {\n" +
+        "  return (\n" +
+        "    <button\n" +
+        '      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"\n' +
+        "      onClick={onClick}\n" +
+        "    >\n" +
+        "      {children}\n" +
+        "    </button>\n" +
+        "  );\n" +
+        "};\n" +
+        "```\n\n" +
+        "**HTML with embedded JavaScript and CSS**\n" +
+        "```html\n" +
+        "<!DOCTYPE html>\n" +
+        "<html>\n" +
+        "<head>\n" +
+        "    <title>Mixed Content Example</title>\n" +
+        "    <style>\n" +
+        "        body {\n" +
+        "            font-family: sans-serif;\n" +
+        "            color: #333;\n" +
+        "        }\n" +
+        "        .highlight {\n" +
+        "            background-color: yellow;\n" +
+        "        }\n" +
+        "    </style>\n" +
+        "</head>\n" +
+        "<body>\n" +
+        '    <h1 class="highlight">Hello, HTML!</h1>\n' +
+        '    <p>This is a paragraph with some <strong style="color: blue;">inline styling</strong>.</p>\n' +
+        "\n" +
+        "    <script>\n" +
+        "        // JavaScript embedded within HTML\n" +
+        "        document.addEventListener('DOMContentLoaded', () => {\n" +
+        "            const heading = document.querySelector('h1');\n" +
+        "            console.log('Page loaded, heading text:', heading.textContent);\n" +
+        "            heading.addEventListener('click', () => {\n" +
+        "                alert('Heading clicked!');\n" +
+        "            });\n" +
+        "        });\n" +
+        "\n" +
+        "        function calculateSum(a, b) {\n" +
+        "            return a + b;\n" +
+        "        }\n" +
+        "        // A console log to verify JavaScript parsing\n" +
+        '        console.log("The sum of 5 and 3 is: " + calculateSum(5, 3));\n' +
+        "    </script>\n" +
+        "</body>\n" +
+        "</html>\n" +
+        "```\n\n" +
+        "**Rust**\n" +
+        "```rust\n" +
+        "fn main() {\n" +
+        "    let numbers = [1, 2, 3, 4, 5];\n" +
+        "    let sum: i32 = numbers.iter().sum();\n" +
+        '    println!("The sum is: {}", sum);\n' +
+        "}\n" +
+        "```\n\n" +
+        "**Lua**\n" +
+        "```lua\n" +
+        "-- Simple factorial function\n" +
+        "function factorial(n)\n" +
+        "  if n == 0 then\n" +
+        "    return 1\n" +
+        "  else\n" +
+        "    return n * factorial(n - 1)\n" +
+        "  end\n" +
+        "end\n\n" +
+        'print("Factorial of 5 is", factorial(5))\n' +
+        "```\n\n" +
+        "**Go**\n" +
+        "```go\n" +
+        "package main\n\n" +
+        'import "fmt"\n\n' +
+        "func main() {\n" +
+        '    message := "Hello, Go!"\n' +
+        "    fmt.Println(message)\n" +
+        "}\n" +
+        "```\n\n" +
+        "**YAML**\n" +
+        "```yaml\n" +
+        "# Example configuration for a web server\n" +
+        "server:\n" +
+        "  host: '127.0.0.1'\n" +
+        "  port: 8080\n\n" +
+        "database:\n" +
+        "  user: 'admin'\n" +
+        "  password: 'secure_password'\n" +
+        "  enabled: true\n" +
         "```\n\n" +
         "### Rich Content & Embeds\n\n" +
         "I can also render hyperlinks, images, and even embed YouTube videos directly in the chat.\n\n" +

@@ -340,7 +340,7 @@ export function ExpandedSidebar({
                   >
                     <FaPlus className="w-4 h-4 mr-2 flex-shrink-0" />
                   </motion.div>
-                  <span className="truncate">New Thread</span>
+                  <span className="truncate">New Conversation</span>
                 </Button>
               </motion.div>
             </motion.div>

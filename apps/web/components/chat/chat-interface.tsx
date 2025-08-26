@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChatSidebar } from "./chat-sidebar";
-import ChatMain from "./chat-main";
+import { ChatMain } from "./chat-main";
 
 export function ChatInterface() {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
@@ -16,7 +16,7 @@ export function ChatInterface() {
         isPinned={isPinned}
         onPinChange={setIsPinned}
       />
-      <ChatMain />
+      <ChatMain selectedChat={selectedChat} isPinned={isPinned} />
     </div>
   );
 }
