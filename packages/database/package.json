@@ -1,0 +1,26 @@
+{
+  "name": "@autonix/database",
+  "version": "1.0.0",
+  "description": "Database schema and utilities for Autonix",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "push": "drizzle-kit push",
+    "studio": "drizzle-kit studio",
+    "seed": "tsx src/seed.ts"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.4",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.33.0",
+    "nanoid": "^5.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "drizzle-kit": "^0.24.2",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
