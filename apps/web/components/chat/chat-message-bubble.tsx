@@ -34,7 +34,7 @@ export function ChatMessageBubble({
 
   return (
     <motion.div
-      className={`flex items-start gap-3 ${isUser ? "justify-end" : "justify-start"}`}
+      className={`flex items-start gap-3 text-wrap ${isUser ? "justify-end" : "justify-start"}`}
       variants={bubbleVariants}
       initial="hidden"
       animate="visible"

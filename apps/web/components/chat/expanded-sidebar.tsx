@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useConversationStore, useChatStore } from "@/lib/store";
 import {
   FaPlus,
   FaThumbtack,
@@ -47,9 +48,14 @@ export function ExpandedSidebar({
   onPin,
   onSelectChat,
 }: ExpandedSidebarProps) {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const {
+    conversations,
+    updateConversationTitle,
+    deleteConversation,
+  } = useConversationStore();
+  const { newConversation } = useChatStore();
   const [editingConversation, setEditingConversation] = useState<string | null>(
-    null
+    null,
   );
   const [editingName, setEditingName] = useState("");
   const [selectedConversation, setSelectedConversation] =
@@ -137,19 +143,13 @@ export function ExpandedSidebar({
   };
 
   const handleSaveConversation = (conversationId: string) => {
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === conversationId ? { ...conv, title: editingName } : conv
-      )
-    );
+    updateConversationTitle(conversationId, editingName);
     setEditingConversation(null);
     setEditingName("");
   };
 
   const handleDeleteConversation = (conversationId: string) => {
-    setConversations((prev) =>
-      prev.filter((conv) => conv.id !== conversationId)
-    );
+    deleteConversation(conversationId);
   };
 
   const handleShowInfo = (conversation: Conversation) => {
@@ -227,7 +227,10 @@ export function ExpandedSidebar({
                 <Button
                   variant="outline"
                   className="w-full justify-start bg-transparent"
-                  onClick={() => onSelectChat("new")}
+                  onClick={() => {
+                    onSelectChat("new");
+                    newConversation();
+                  }}
                 >
                   <motion.div
                     whileHover={{ rotate: 90 }}

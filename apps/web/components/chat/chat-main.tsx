@@ -8,7 +8,11 @@ import { Button } from "@workspace/ui/components/button";
 import { ChatInput } from "./chat-input";
 import { useStream } from "@langchain/langgraph-sdk/react";
 import type { Message } from "@langchain/langgraph-sdk";
-import { useChatStore } from "../../lib/store";
+import {
+  useChatStore,
+  useConversationStore,
+  type Conversation,
+} from "../../lib/store";
 import { ChatMessageBubble } from "./chat-message-bubble"; // Import ChatMessageBubble
 import { useToast } from "../../hooks/use-toast";
 
@@ -20,6 +24,7 @@ interface ChatMainProps {
 }
 
 export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
+  const [threadId, setThreadId] = useState<string | undefined>(undefined);
   const {
     messages,
     setMessages,
@@ -29,6 +34,7 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
     setShowInitialUI,
   } = useChatStore();
   const { toast } = useToast();
+  const { conversations, addConversation } = useConversationStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +42,22 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
     apiUrl: "http://localhost:2024",
     assistantId: "simple",
     messagesKey: "messages",
+    threadId,
+    onThreadId: setThreadId,
   });
+
+  useEffect(() => {
+    if (selectedChat && selectedChat !== "new") {
+      setThreadId(selectedChat);
+    } else {
+      setThreadId(undefined);
+      setMessages([]);
+      setShowInitialUI(true);
+      if (thread.messages) {
+        thread.messages.length = 0;
+      }
+    }
+  }, [selectedChat, setMessages, setShowInitialUI]);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -54,6 +75,24 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
       setMessages(thread.messages);
     }
   }, [thread.messages, setMessages]);
+
+  useEffect(() => {
+    if (threadId && messages.length > 0) {
+      const conversationExists = conversations.some(
+        (conv) => conv.id === threadId
+      );
+      if (!conversationExists) {
+        addConversation({
+          id: threadId,
+          title: messages[0]?.content as string,
+          timestamp: new Date().toISOString(),
+          messageCount: messages.length,
+          lastMessage: messages[messages.length - 1]?.content as string,
+          firstMessage: messages[0]?.content as string,
+        });
+      }
+    }
+  }, [threadId, messages, conversations, addConversation]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

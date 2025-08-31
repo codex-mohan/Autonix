@@ -92,6 +92,8 @@ const getLanguageExtension = (lang: string) => {
         return langs.go?.();
       case "yaml":
         return langs.yaml?.();
+      case "text":
+        return langs.markdown?.();
       default:
         return null;
     }
@@ -187,9 +189,12 @@ const CodeBlock: React.FC<{ code: string; langHint?: string }> = React.memo(
     };
 
     const handleDownload = () => {
-      const extension = languageExtensions[langHint?.toLowerCase() || ""] || "txt";
+      const extension =
+        languageExtensions[langHint?.toLowerCase() || ""] || "txt";
       const filename = `code.${extension}`;
-      const blob = new Blob([code], { type: `text/${extension};charset=utf-8;` });
+      const blob = new Blob([code], {
+        type: `text/${extension};charset=utf-8;`,
+      });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = filename;
@@ -263,7 +268,14 @@ const CodeBlock: React.FC<{ code: string; langHint?: string }> = React.memo(
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <rect
+                      x="9"
+                      y="9"
+                      width="13"
+                      height="13"
+                      rx="2"
+                      ry="2"
+                    ></rect>
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                   </svg>
                   Copy
@@ -343,15 +355,10 @@ const MarkdownView: React.FC<{ text: string }> = React.memo(({ text }) => {
   // OPTIMIZATION: Memoize the components object so it's not recreated on every render.
   const components = useMemo(
     () => ({
-      // This 'code' component correctly handles both inline and block-level code.
-      code({ className, children, ...props }: any) {
-        // Fenced code blocks have a `language-xxx` class, inline code does not.
-        const match = /language-([\w-]+)/.exec(className || "");
-        const lang = match?.[1];
-        const raw = String(children);
-
-        // If there's no language match, we treat it as an inline code snippet.
-        if (!match) {
+      // ✅ THIS IS THE CORRECTED LOGIC
+      code({ inline, className, children, ...props }: any) {
+        // 1. Check if the code is inline first. This is the most reliable way.
+        if (inline) {
           return (
             <code className="rounded bg-muted px-1.5 py-1 text-[0.9em] text-primary">
               {children}
@@ -359,10 +366,17 @@ const MarkdownView: React.FC<{ text: string }> = React.memo(({ text }) => {
           );
         }
 
-        // Otherwise, it's a fenced code block that we render with CodeMirror.
+        // 2. If it's not inline, it's a block. Now we can check for a language.
+        const match = /language-([\w-]+)/.exec(className || "");
+        const lang = match?.[1];
+        const raw = String(children);
+
+        // Handle special languages like Mermaid
         if (lang === "mermaid") {
           return <MermaidDiagram code={raw} />;
         }
+
+        // Render all other blocks (with or without a language) using CodeBlock.
         return <CodeBlock code={raw} langHint={lang} />;
       },
       p: ({ children }: any) => (
@@ -406,31 +420,33 @@ const MarkdownView: React.FC<{ text: string }> = React.memo(({ text }) => {
           try {
             if (!tableRef.current) return;
 
-            const rows = Array.from(tableRef.current.querySelectorAll('tr'));
-            const tableData = rows.map(row =>
-              Array.from(row.querySelectorAll('th, td')).map(cell =>
-                (cell.textContent || '').trim().replace(/"/g, '""')
+            const rows = Array.from(tableRef.current.querySelectorAll("tr"));
+            const tableData = rows.map((row) =>
+              Array.from(row.querySelectorAll("th, td")).map((cell) =>
+                (cell.textContent || "").trim().replace(/"/g, '""')
               )
             );
 
             if (tableData.length === 0) return;
 
-            const csvContent = tableData.map(row =>
-              row.map(cell => `"${cell}"`).join(',')
-            ).join('\n');
+            const csvContent = tableData
+              .map((row) => row.map((cell) => `"${cell}"`).join(","))
+              .join("\n");
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
+            const blob = new Blob([csvContent], {
+              type: "text/csv;charset=utf-8;",
+            });
+            const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'table-data.csv');
-            link.style.visibility = 'hidden';
+            link.setAttribute("href", url);
+            link.setAttribute("download", "table-data.csv");
+            link.style.visibility = "hidden";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
           } catch (error) {
-            console.error('Error downloading CSV:', error);
+            console.error("Error downloading CSV:", error);
           }
         };
 

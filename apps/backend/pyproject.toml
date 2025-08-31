@@ -22,6 +22,7 @@ dependencies = [
     "langgraph-cli[inmem]>=0.3.5",
     "langchain-community>=0.3.27",
     "httpx>=0.28.1",
+    "langgraph-checkpoint-postgres>=2.0.23",
 ]
 
 [project.optional-dependencies]
