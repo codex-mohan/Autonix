@@ -3,11 +3,7 @@
 import type { Message } from "@langchain/langgraph-sdk";
 import { motion } from "framer-motion";
 import { Button } from "@workspace/ui/components/button";
-import {
-  FaRedo,
-  FaCopy,
-  FaInfoCircle,
-} from "react-icons/fa";
+import { FaRedo, FaCopy, FaInfoCircle, FaUser, FaRobot } from "react-icons/fa";
 import MarkdownView from "./markdown-view";
 
 interface ChatMessageBubbleProps {
@@ -38,28 +34,33 @@ export function ChatMessageBubble({
 
   return (
     <motion.div
-      className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+      className={`flex items-start gap-3 ${isUser ? "justify-end" : "justify-start"}`}
       variants={bubbleVariants}
       initial="hidden"
       animate="visible"
-      layout
+      layout="position" // Changed layout to "position" for smoother animation
     >
+      {!isUser && (
+        <div className="flex-shrink-0">
+          <FaRobot className="w-6 h-6 text-muted-foreground" />
+        </div>
+      )}
       <div
-        className={`relative p-3 rounded-lg max-w-[70%] ${
+        className={`relative p-3 rounded-lg max-w-[100%] ${
           isUser
             ? "bg-primary text-primary-foreground"
-            : "bg-muted text-foreground"
+            : "bg-muted text-foreground w-full"
         }`}
       >
         {isUser ? (
-          message.content as string
+          (message.content as string)
         ) : (
           <MarkdownView text={message.content as string} />
         )}
 
         {/* Controls for assistant messages */}
         {!isUser && (
-          <div className="absolute -bottom-2 -right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <div className="flex justify-start space-x-1 mt-2">
             {onRetry && (
               <Button
                 variant="ghost"
@@ -93,6 +94,11 @@ export function ChatMessageBubble({
           </div>
         )}
       </div>
+      {isUser && (
+        <div className="flex-shrink-0">
+          <FaUser className="w-6 h-6 text-primary" />
+        </div>
+      )}
     </motion.div>
   );
 }

@@ -26,12 +26,6 @@ import {
   TooltipProvider,
 } from "@workspace/ui/components/tooltip";
 
-interface Collection {
-  id: string;
-  name: string;
-  conversations: Conversation[];
-}
-
 interface Conversation {
   id: string;
   title: string;
@@ -53,14 +47,13 @@ export function ExpandedSidebar({
   onPin,
   onSelectChat,
 }: ExpandedSidebarProps) {
-  const [editingCollection, setEditingCollection] = useState<string | null>(
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [editingConversation, setEditingConversation] = useState<string | null>(
     null
   );
   const [editingName, setEditingName] = useState("");
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
-
-  const [isAnimated, setIsAnimated] = useState(false);
 
   // Professional animation variants with reduced bounce
   const sidebarVariants = {
@@ -73,7 +66,7 @@ export function ExpandedSidebar({
       opacity: 1,
       transition: {
         duration: 0.4,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        ease: [0.25, 0.46, 0.45, 0.94] as const,
       },
     },
     exit: {
@@ -81,7 +74,7 @@ export function ExpandedSidebar({
       opacity: 0,
       transition: {
         duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        ease: [0.25, 0.46, 0.45, 0.94] as const,
       },
     },
   };
@@ -94,7 +87,7 @@ export function ExpandedSidebar({
       transition: {
         delay: 0.1,
         duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        ease: [0.25, 0.46, 0.45, 0.94] as const,
       },
     },
   };
@@ -107,12 +100,12 @@ export function ExpandedSidebar({
       transition: {
         delay: 0.2,
         duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        ease: [0.25, 0.46, 0.45, 0.94] as const,
       },
     },
   };
 
-  const collectionVariants = {
+  const listVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -123,137 +116,39 @@ export function ExpandedSidebar({
     },
   };
 
-  const conversationVariants = {
+  const itemVariants = {
     hidden: { x: -15, opacity: 0 },
     visible: {
       x: 0,
       opacity: 1,
       transition: {
         duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        ease: [0.25, 0.46, 0.45, 0.94] as const,
       },
     },
   };
 
-  const libraryVariants = {
-    hidden: { y: 15, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        delay: 0.3,
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      },
-    },
-  };
-
-  useEffect(() => {
-    if (isVisible) {
-      setIsAnimated(true);
-    }
-  }, [isVisible]);
-
-  // Mock data
-  const [collections, setCollections] = useState<Collection[]>([
-    {
-      id: "home",
-      name: "Home",
-      conversations: [
-        {
-          id: "1",
-          title: "build a model card for ai",
-          lastMessage: "Here's a comprehensive model card template...",
-          timestamp: "2 hours ago",
-          messageCount: 15,
-        },
-        {
-          id: "2",
-          title: "how can is set a python",
-          lastMessage: "To set up Python environment...",
-          timestamp: "1 day ago",
-          messageCount: 8,
-        },
-      ],
-    },
-    {
-      id: "finance",
-      name: "Finance",
-      conversations: [
-        {
-          id: "3",
-          title: "what is langraph.json file",
-          lastMessage: "LangGraph JSON files are configuration...",
-          timestamp: "3 days ago",
-          messageCount: 12,
-        },
-      ],
-    },
-    {
-      id: "travel",
-      name: "Travel",
-      conversations: [
-        {
-          id: "4",
-          title: "how can i get the list of",
-          lastMessage: "You can get the list by using...",
-          timestamp: "1 week ago",
-          messageCount: 6,
-        },
-      ],
-    },
-    {
-      id: "academic",
-      name: "Academic",
-      conversations: [
-        {
-          id: "5",
-          title: "what does langchain.llm",
-          lastMessage: "LangChain LLM is a wrapper...",
-          timestamp: "2 weeks ago",
-          messageCount: 20,
-        },
-        {
-          id: "6",
-          title: "what is reranking in rag",
-          lastMessage: "Reranking in RAG improves...",
-          timestamp: "3 weeks ago",
-          messageCount: 18,
-        },
-        {
-          id: "7",
-          title: "how can i export a graph",
-          lastMessage: "To export a graph, you can use...",
-          timestamp: "1 month ago",
-          messageCount: 10,
-        },
-      ],
-    },
-  ]);
-
-  const handleEditCollection = (collectionId: string, currentName: string) => {
-    setEditingCollection(collectionId);
+  const handleEditConversation = (
+    conversationId: string,
+    currentName: string
+  ) => {
+    setEditingConversation(conversationId);
     setEditingName(currentName);
   };
 
-  const handleSaveCollection = (collectionId: string) => {
-    setCollections((prev) =>
-      prev.map((col) =>
-        col.id === collectionId ? { ...col, name: editingName } : col
+  const handleSaveConversation = (conversationId: string) => {
+    setConversations((prev) =>
+      prev.map((conv) =>
+        conv.id === conversationId ? { ...conv, title: editingName } : conv
       )
     );
-    setEditingCollection(null);
+    setEditingConversation(null);
     setEditingName("");
   };
 
   const handleDeleteConversation = (conversationId: string) => {
-    setCollections((prev) =>
-      prev.map((col) => ({
-        ...col,
-        conversations: col.conversations.filter(
-          (conv) => conv.id !== conversationId
-        ),
-      }))
+    setConversations((prev) =>
+      prev.filter((conv) => conv.id !== conversationId)
     );
   };
 
@@ -345,78 +240,49 @@ export function ExpandedSidebar({
               </motion.div>
             </motion.div>
 
-            {/* Collections */}
+            {/* Conversations List */}
             <motion.div
-              className="p-4 space-y-4 max-h-80 overflow-y-auto thin-scrollbar"
-              variants={collectionVariants}
+              className="p-4 space-y-2"
+              variants={listVariants}
               initial="hidden"
               animate={isVisible ? "visible" : "hidden"}
             >
-              {collections.map((collection, collectionIndex) => (
-                <motion.div
-                  key={collection.id}
-                  className="space-y-2"
-                  variants={conversationVariants as any}
-                  custom={collectionIndex}
-                >
-                  {/* Collection Header */}
-                  <div className="flex items-center justify-between group min-w-0">
-                    {editingCollection === collection.id ? (
-                      <div className="flex items-center space-x-2 flex-1 min-w-0">
+              {conversations.length > 0 ? (
+                conversations.map((conversation) => (
+                  <motion.div
+                    key={conversation.id}
+                    variants={itemVariants}
+                    className="group"
+                  >
+                    {editingConversation === conversation.id ? (
+                      <div className="flex items-center space-x-2">
                         <Input
                           value={editingName}
                           onChange={(e) => setEditingName(e.target.value)}
-                          className="h-6 text-sm min-w-0 flex-1"
+                          className="h-8 text-sm"
                           onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleSaveCollection(collection.id);
-                            } else if (e.key === "Escape") {
-                              setEditingCollection(null);
-                            }
+                            if (e.key === "Enter")
+                              handleSaveConversation(conversation.id);
+                            if (e.key === "Escape")
+                              setEditingConversation(null);
                           }}
                           autoFocus
                         />
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="w-6 h-6 flex-shrink-0"
-                          onClick={() => handleSaveCollection(collection.id)}
+                          className="w-8 h-8"
+                          onClick={() =>
+                            handleSaveConversation(conversation.id)
+                          }
                         >
-                          <FaTimes className="w-3 h-3" />
+                          <FaTimes className="w-4 h-4" />
                         </Button>
                       </div>
                     ) : (
-                      <>
-                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide truncate flex-1 min-w-0">
-                          {collection.name}
-                        </h3>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-                          onClick={() =>
-                            handleEditCollection(collection.id, collection.name)
-                          }
-                        >
-                          <FaEdit className="w-3 h-3" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Conversations */}
-                  <div className="space-y-1">
-                    {collection.conversations.map((conversation, index) => (
-                      <motion.div
-                        key={conversation.id}
-                        className="group flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 cursor-pointer min-w-0"
+                      <div
+                        className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
                         onClick={() => onSelectChat(conversation.id)}
-                        variants={conversationVariants as any}
-                        whileHover={{
-                          x: 2,
-                          transition: { duration: 0.15 },
-                        }}
-                        whileTap={{ scale: 0.99 }}
                       >
                         <div className="flex-1 min-w-0 pr-2">
                           <p className="text-sm font-medium truncate">
@@ -426,7 +292,7 @@ export function ExpandedSidebar({
                             {conversation.timestamp}
                           </p>
                         </div>
-                        <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                        <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -436,7 +302,7 @@ export function ExpandedSidebar({
                                   className="w-6 h-6"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleEditCollection(
+                                    handleEditConversation(
                                       conversation.id,
                                       conversation.title
                                     );
@@ -446,7 +312,7 @@ export function ExpandedSidebar({
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Edit conversation</p>
+                                <p>Edit</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -466,120 +332,22 @@ export function ExpandedSidebar({
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Delete conversation</p>
+                                <p>Delete</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
-                          <Dialog>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <DialogTrigger asChild>
-                                    <Button
-                                      size="icon"
-                                      variant="ghost"
-                                      className="w-6 h-6"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleShowInfo(conversation);
-                                      }}
-                                    >
-                                      <FaInfo className="w-3 h-3" />
-                                    </Button>
-                                  </DialogTrigger>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Conversation info</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            <DialogContent className="max-w-md">
-                              <DialogHeader>
-                                <DialogTitle>Conversation Details</DialogTitle>
-                              </DialogHeader>
-                              <div className="space-y-4">
-                                <div>
-                                  <h4 className="text-sm font-medium mb-1">
-                                    Title
-                                  </h4>
-                                  <p className="text-sm text-muted-foreground break-words">
-                                    {conversation.title}
-                                  </p>
-                                </div>
-                                <div>
-                                  <h4 className="text-sm font-medium mb-1">
-                                    Last Message
-                                  </h4>
-                                  <p className="text-sm text-muted-foreground break-words">
-                                    {conversation.lastMessage}
-                                  </p>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <h4 className="text-sm font-medium mb-1">
-                                      Messages
-                                    </h4>
-                                    <p className="text-sm text-muted-foreground">
-                                      {conversation.messageCount}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <h4 className="text-sm font-medium mb-1">
-                                      Last Active
-                                    </h4>
-                                    <p className="text-sm text-muted-foreground">
-                                      {conversation.timestamp}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
                         </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              ))}
+                      </div>
+                    )}
+                  </motion.div>
+                ))
+              ) : (
+                <div className="text-center text-sm text-muted-foreground py-8">
+                  No conversations yet.
+                </div>
+              )}
             </motion.div>
           </div>
-
-          {/* Library Section */}
-          <motion.div
-            className="border-t border-border p-4 flex-shrink-0"
-            variants={libraryVariants as any}
-            initial="hidden"
-            animate={isVisible ? "visible" : "hidden"}
-          >
-            <div className="flex items-center justify-between mb-2 min-w-0">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide truncate flex-1">
-                Library
-              </h3>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="w-6 h-6 flex-shrink-0"
-              >
-                <FaPlus className="w-3 h-3" />
-              </Button>
-            </div>
-            <div className="space-y-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-xs"
-              >
-                <span className="truncate">Recent Searches</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-xs"
-              >
-                <span className="truncate">Saved Responses</span>
-              </Button>
-            </div>
-          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>

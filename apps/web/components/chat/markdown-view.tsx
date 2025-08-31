@@ -107,7 +107,57 @@ const CodeBlock: React.FC<{ code: string; langHint?: string }> = React.memo(
     const [isCopied, setIsCopied] = useState(false);
     const { theme } = useTheme();
 
-    // FIXED: Safe language extension loading with debugging
+    const languageExtensions: { [key: string]: string } = {
+      python: "py",
+      js: "js",
+      javascript: "js",
+      ts: "ts",
+      typescript: "ts",
+      html: "html",
+      css: "css",
+      json: "json",
+      cpp: "cpp",
+      c: "c",
+      java: "java",
+      go: "go",
+      rust: "rs",
+      bash: "sh",
+      shell: "sh",
+      yaml: "yaml",
+      sql: "sql",
+      markdown: "md",
+      php: "php",
+      ruby: "rb",
+      swift: "swift",
+      kotlin: "kt",
+      xml: "xml",
+      jsonc: "jsonc",
+      jsx: "jsx",
+      tsx: "tsx",
+      vue: "vue",
+      svelte: "svelte",
+      graphql: "graphql",
+      dockerfile: "dockerfile",
+      diff: "diff",
+      git: "git",
+      ini: "ini",
+      perl: "pl",
+      r: "r",
+      scss: "scss",
+      less: "less",
+      lua: "lua",
+      makefile: "makefile",
+      powershell: "ps1",
+      pug: "pug",
+      razor: "cshtml",
+      sass: "sass",
+      solidity: "sol",
+      stylus: "styl",
+      toml: "toml",
+      vb: "vb",
+      zig: "zig",
+    };
+
     const languageExt = useMemo(() => {
       const ext = getLanguageExtension(langHint || "");
       if (langHint && !ext) {
@@ -119,13 +169,11 @@ const CodeBlock: React.FC<{ code: string; langHint?: string }> = React.memo(
     const extensions = useMemo(() => {
       const base = [
         lineNumbers(),
-
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
         EditorView.editable.of(false),
         EditorView.lineWrapping,
       ];
 
-      // Add language extension if available
       if (languageExt) {
         return [...base, languageExt];
       }
@@ -138,54 +186,91 @@ const CodeBlock: React.FC<{ code: string; langHint?: string }> = React.memo(
       setTimeout(() => setIsCopied(false), 2000);
     };
 
+    const handleDownload = () => {
+      const extension = languageExtensions[langHint?.toLowerCase() || ""] || "txt";
+      const filename = `code.${extension}`;
+      const blob = new Blob([code], { type: `text/${extension};charset=utf-8;` });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    };
+
     return (
       <div className="mt-4 overflow-hidden rounded-xl border border-border">
         <div className="flex items-center justify-between bg-muted/50 px-4 py-1.5 text-xs">
           <span className="font-semibold uppercase text-muted-foreground">
             {langHint || "code"}
           </span>
-          <button
-            onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-muted"
-            title="Copy code"
-          >
-            {isCopied ? (
-              <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                Copied!
-              </>
-            ) : (
-              <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-                Copy
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleDownload}
+              className="flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-muted"
+              title="Download code"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Download
+            </button>
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-muted"
+              title="Copy code"
+            >
+              {isCopied ? (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  Copy
+                </>
+              )}
+            </button>
+          </div>
         </div>
         <CodeMirror
           value={code.replace(/\n$/, "")}

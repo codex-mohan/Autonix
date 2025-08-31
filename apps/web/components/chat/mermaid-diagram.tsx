@@ -1,82 +1,119 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import mermaid from "mermaid";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useTheme } from "next-themes";
 import { EditorView, lineNumbers } from "@codemirror/view";
-import { foldGutter, syntaxHighlighting, defaultHighlightStyle } from "@codemirror/language";
+import {
+  syntaxHighlighting,
+  defaultHighlightStyle,
+} from "@codemirror/language";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
+import { langs } from "@uiw/codemirror-extensions-langs";
 import dynamic from "next/dynamic";
 import { tokyoNight } from "@uiw/codemirror-themes-all";
+import {
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Download,
+  RefreshCw,
+  Copy,
+  Check,
+  Code2,
+  EyeOff,
+} from "lucide-react";
+
+import { nanoid } from "nanoid";
 
 const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
   ssr: false,
 });
 
-// Memoize extensions for the CodeMirror preview
+// Memoize extensions for the CodeMirror preview (no changes here)
 const useCodeMirrorExtensions = () => {
   return useMemo(
     () => [
       lineNumbers(),
-      foldGutter(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       EditorView.editable.of(false),
       EditorView.lineWrapping,
-      markdown({ base: markdownLanguage }), // Mermaid syntax is markdown-like
+      markdown({ base: markdownLanguage }),
     ],
     []
   );
 };
 
 const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
-  const ref = React.useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
-  const [isRendered, setIsRendered] = useState(false);
+  const [svg, setSvg] = useState<string | null>(null);
   const [showCode, setShowCode] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [isRendering, setIsRendering] = useState(false);
+  const [renderError, setRenderError] = useState<string | null>(null);
+  // State to manually trigger a re-render
+  const [retryId, setRetryId] = useState(0);
 
   const codeMirrorExtensions = useCodeMirrorExtensions();
 
+  // FIX: A single, consolidated useEffect handles rendering.
+  // It runs whenever the diagram code, theme, or the retry trigger changes.
   useEffect(() => {
-    setIsRendered(false);
-    if (ref.current) {
-      ref.current.innerHTML = "";
-    }
-    if (ref.current && code) {
+    const renderDiagram = async () => {
+      if (!code.trim()) {
+        setSvg(null);
+        setRenderError(null);
+        return;
+      }
+
+      setIsRendering(true);
+      setRenderError(null);
+
       try {
         mermaid.initialize({
           startOnLoad: false,
+          suppressErrorRendering: true,
           theme: theme === "dark" ? "dark" : "default",
           fontFamily: "inherit",
         });
-        ref.current.innerHTML = code;
-        ref.current.classList.add("mermaid");
-        mermaid.run({ nodes: [ref.current] });
-        setIsRendered(true);
+
+        // FIX: Use mermaid.render() to get the SVG as a string.
+        // This avoids direct DOM manipulation and integrates cleanly with React state.
+        const { svg: renderedSvg } = await mermaid.render(
+          `mermaid-graph-${Date.now()}`.toString(), // A unique ID is required
+          code
+        );
+        setSvg(renderedSvg);
       } catch (e) {
         console.error("Mermaid rendering failed:", e);
-        if (ref.current) {
-          ref.current.classList.remove("mermaid");
-          ref.current.innerHTML =
-            '<div class="text-red-500 p-4">Error: Mermaid diagram could not be rendered.</div>';
-        }
+        const message =
+          e instanceof Error ? e.message : "An unknown error occurred.";
+        setRenderError(message.replace(/[\r\n]+/g, " ")); // Clean up multiline errors
+        setSvg(null);
+      } finally {
+        setIsRendering(false);
       }
-    }
-  }, [code, theme]);
+    };
 
-  const handleCopyCode = () => {
+    renderDiagram();
+  }, [code, theme, retryId]); // Dependencies are clear and concise
+
+  const handleCopyCode = useCallback(() => {
     navigator.clipboard.writeText(code);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
-  };
+  }, [code]);
 
-  const handleDownloadSVG = () => {
-    if (ref.current?.querySelector("svg")) {
-      const svgData = new XMLSerializer().serializeToString(
-        ref.current.querySelector("svg")!
-      );
-      const blob = new Blob([svgData], { type: "image/svg+xml" });
+  const handleDownloadSVG = useCallback(() => {
+    if (svg) {
+      const blob = new Blob([svg], { type: "image/svg+xml" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -86,7 +123,15 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }
+  }, [svg]);
+
+  // FIX: Re-rendering is now handled by updating the `retryId` state,
+  // which re-triggers the main useEffect.
+  const handleReRender = () => {
+    setRetryId((prev) => prev + 1);
   };
+
+  const hasContent = code.trim().length > 0;
 
   return (
     <div className="mermaid-container my-4 rounded-lg border bg-muted/30">
@@ -96,149 +141,61 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
             <>
               {/* Controls Toolbar */}
               <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5 rounded-lg border bg-background/80 p-1.5 shadow-md">
-                {/* Diagram Controls */}
                 <button
                   onClick={() => zoomIn()}
                   title="Zoom In"
                   className="p-1.5 rounded-md hover:bg-muted"
                 >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                  </svg>
+                  <ZoomIn size={16} />
                 </button>
                 <button
                   onClick={() => zoomOut()}
                   title="Zoom Out"
                   className="p-1.5 rounded-md hover:bg-muted"
                 >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                  </svg>
+                  <ZoomOut size={16} />
                 </button>
                 <button
                   onClick={() => resetTransform()}
                   title="Reset Zoom"
                   className="p-1.5 rounded-md hover:bg-muted"
                 >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M3 2v6h6"></path>
-                    <path d="M21 12A9 9 0 0 0 6 5.3L3 8"></path>
-                    <path d="M21 22v-6h-6"></path>
-                    <path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"></path>
-                  </svg>
+                  <RotateCcw size={16} />
                 </button>
                 <button
                   onClick={handleDownloadSVG}
                   title="Download as SVG"
                   className="p-1.5 rounded-md hover:bg-muted"
+                  disabled={!svg}
                 >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                  </svg>
+                  <Download size={16} />
                 </button>
-
-                {/* Divider */}
                 <div className="h-5 w-px bg-border mx-1"></div>
-
-                {/* Code Controls */}
+                <button
+                  onClick={handleReRender}
+                  title="Re-render Diagram"
+                  className="p-1.5 rounded-md hover:bg-muted"
+                  disabled={isRendering}
+                >
+                  <RefreshCw
+                    size={16}
+                    className={isRendering ? "animate-spin" : ""}
+                  />
+                </button>
+                <div className="h-5 w-px bg-border mx-1"></div>
                 <button
                   onClick={handleCopyCode}
                   title="Copy Mermaid Code"
-                  className="p-1.5 rounded-md hover:bg-muted flex items-center gap-1.5"
+                  className="p-1.5 rounded-md hover:bg-muted"
                 >
-                  {isCopied ? (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  ) : (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect
-                        x="9"
-                        y="9"
-                        width="13"
-                        height="13"
-                        rx="2"
-                        ry="2"
-                      ></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  )}
+                  {isCopied ? <Check size={16} /> : <Copy size={16} />}
                 </button>
                 <button
                   onClick={() => setShowCode(!showCode)}
                   title={showCode ? "Hide Code" : "Show Code"}
                   className="p-1.5 rounded-md hover:bg-muted"
                 >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="16 18 22 12 16 6"></polyline>
-                    <polyline points="8 6 2 12 8 18"></polyline>
-                  </svg>
+                  {showCode ? <EyeOff size={16} /> : <Code2 size={16} />}
                 </button>
               </div>
 
@@ -252,19 +209,48 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
                   height: "100%",
                 }}
               >
-                <div ref={ref} />
-                {!isRendered && (
-                  <div className="animate-pulse text-muted-foreground">
-                    Loading diagram...
-                  </div>
-                )}
+                {/* FIX: The content is now rendered declaratively based on state */}
+                <div className="flex items-center justify-center p-4">
+                  {isRendering && (
+                    <div className="animate-pulse text-muted-foreground">
+                      Rendering diagram...
+                    </div>
+                  )}
+                  {renderError && !isRendering && (
+                    <div className="text-red-500 p-4 text-center">
+                      <div className="font-semibold mb-2">Rendering Error</div>
+                      <div className="text-sm font-mono break-all">
+                        {renderError}
+                      </div>
+                      <button
+                        onClick={handleReRender}
+                        className="mt-2 px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  )}
+                  {!isRendering && !renderError && svg && (
+                    <div dangerouslySetInnerHTML={{ __html: svg }} />
+                  )}
+                  {!isRendering && !renderError && !svg && hasContent && (
+                    <div className="text-muted-foreground">
+                      Preparing diagram...
+                    </div>
+                  )}
+                  {!hasContent && (
+                    <div className="text-sm text-muted-foreground/70">
+                      No diagram code provided.
+                    </div>
+                  )}
+                </div>
               </TransformComponent>
             </>
           )}
         </TransformWrapper>
       </div>
 
-      {/* Collapsible Code Preview */}
+      {/* Collapsible Code Preview (no major changes needed here) */}
       {showCode && (
         <div className="border-t">
           <CodeMirror

@@ -10,6 +10,9 @@ import { useStream } from "@langchain/langgraph-sdk/react";
 import type { Message } from "@langchain/langgraph-sdk";
 import { useChatStore } from "../../lib/store";
 import { ChatMessageBubble } from "./chat-message-bubble"; // Import ChatMessageBubble
+import { useToast } from "../../hooks/use-toast";
+
+import { nanoid } from "nanoid";
 
 interface ChatMainProps {
   selectedChat: string | null;
@@ -20,17 +23,18 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
   const {
     messages,
     setMessages,
+    isLoading,
     setIsLoading,
     showInitialUI,
     setShowInitialUI,
-    updateLastAssistantMessage,
   } = useChatStore();
+  const { toast } = useToast();
   const [isLoaded, setIsLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const thread = useStream<{ messages: Message[] }>({
     apiUrl: "http://localhost:2024",
-    assistantId: "agent",
+    assistantId: "simple",
     messagesKey: "messages",
   });
 
@@ -47,16 +51,9 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
 
   useEffect(() => {
     if (thread.messages && thread.messages.length > 0) {
-      const newMessages = thread.messages;
-      const lastNewMessage = newMessages[newMessages.length - 1];
-
-      if (lastNewMessage && lastNewMessage.type === "ai") {
-        updateLastAssistantMessage(lastNewMessage.content as string);
-      } else {
-        setMessages(newMessages);
-      }
+      setMessages(thread.messages);
     }
-  }, [thread.messages, setMessages, updateLastAssistantMessage]);
+  }, [thread.messages, setMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -64,8 +61,10 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
 
   const handleCopyMessage = (content: string) => {
     navigator.clipboard.writeText(content);
-    // Optionally, add a toast notification here
-    console.log("Copied to clipboard:", content);
+    toast({
+      title: "Copied to clipboard!",
+      description: "The message content has been copied.",
+    });
   };
 
   const handleRetryMessage = (message: Message) => {
@@ -87,7 +86,9 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
         animate={isLoaded ? "visible" : "hidden"}
       >
         {/* Main Content Area */}
-        <div className={`flex-1 flex flex-col items-center px-8 pb-4 overflow-y-auto ${showInitialUI ? "justify-center" : "justify-start"}`}>
+        <div
+          className={`flex-1 flex flex-col items-center px-8 pb-4 overflow-y-auto ${showInitialUI ? "justify-center" : "justify-start"}`}
+        >
           <div className="w-full max-w-4xl flex flex-col items-center">
             <AnimatePresence>
               {showInitialUI ? (
@@ -142,7 +143,11 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            thread.submit({ messages: [{ type: "human", content: suggestion }] });
+                            thread.submit({
+                              messages: [
+                                { type: "human", content: suggestion },
+                              ],
+                            });
                             setShowInitialUI(false);
                           }}
                           className="text-xs px-4 py-2 rounded-full border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
@@ -155,7 +160,9 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
                 </>
               ) : (
                 /* Chat Messages for active chat state */
-                <div className="w-full space-y-4 mb-4 pt-4"> {/* Added pt-4 for some top padding */}
+                <div className="w-full space-y-4 mb-4 pt-4">
+                  {" "}
+                  {/* Added pt-4 for some top padding */}
                   {messages.map((message, index) => (
                     <ChatMessageBubble
                       key={message.id || index}
@@ -165,6 +172,18 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
                       onInfo={handleInfoMessage}
                     />
                   ))}
+                  {!showInitialUI && !isLoading && messages.length === 0 && (
+                    <ChatMessageBubble
+                      message={{
+                        id: nanoid(),
+                        content: "No message received",
+                        type: "ai",
+                      }}
+                      onCopy={handleCopyMessage}
+                      onRetry={handleRetryMessage}
+                      onInfo={handleInfoMessage}
+                    />
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
               )}
