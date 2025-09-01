@@ -46,6 +46,9 @@ importers:
       '@codemirror/lang-python':
         specifier: github:codemirror/lang-python
         version: https://codeload.github.com/codemirror/lang-python/tar.gz/b29a2dd8f52bd1f3194d9a0d1d65631cda1c3c47
+      '@codemirror/lang-rust':
+        specifier: ^6.0.2
+        version: 6.0.2
       '@codemirror/lang-sql':
         specifier: ^6.9.1
         version: 6.9.1
@@ -91,6 +94,9 @@ importers:
       cheerio:
         specifier: ^1.1.2
         version: 1.1.2
+      codemirror-lang-mermaid:
+        specifier: ^0.5.0
+        version: 0.5.0
       framer-motion:
         specifier: ^12.23.11
         version: 12.23.11(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -103,6 +109,9 @@ importers:
       mermaid:
         specifier: ^11.10.1
         version: 11.10.1
+      nanoid:
+        specifier: ^5.1.5
+        version: 5.1.5
       next:
         specifier: ^15.2.3
         version: 15.2.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)

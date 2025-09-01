@@ -5,6 +5,7 @@ import { EditorView, lineNumbers } from "@codemirror/view";
 import {
   syntaxHighlighting,
   defaultHighlightStyle,
+  LanguageDescription,
 } from "@codemirror/language";
 
 import { cpp } from "@codemirror/lang-cpp";
@@ -12,7 +13,9 @@ import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { html } from "@codemirror/lang-html";
 import { json } from "@codemirror/lang-json";
-import { markdown } from "@codemirror/lang-markdown";
+import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
+import { mermaid as mermaidLanguage } from "codemirror-lang-mermaid";
+import { rust } from "@codemirror/lang-rust";
 import { sql } from "@codemirror/lang-sql";
 
 import { langs } from "@uiw/codemirror-extensions-langs";
@@ -27,6 +30,7 @@ import { useTheme } from "next-themes";
 import SmartLink from "@/components/smart-link";
 import ZoomableImageWithLoader from "./image-with-loader";
 import MermaidDiagram from "./mermaid-diagram";
+import mermaid from "mermaid";
 
 const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
   ssr: false,
@@ -79,7 +83,57 @@ const getLanguageExtension = (lang: string) => {
         return langs.lua?.();
       case "markdown":
       case "md":
-        return markdown();
+        return markdown({
+          base: markdownLanguage,
+          codeLanguages: (info) => {
+            switch (info) {
+              case "javascript":
+              case "js":
+                return LanguageDescription.of({
+                  name: "JavaScript",
+                  support: javascript(),
+                });
+              case "python":
+              case "py":
+                return LanguageDescription.of({
+                  name: "Python",
+                  support: python(),
+                });
+              case "cpp":
+                return LanguageDescription.of({
+                  name: "C++",
+                  support: cpp(),
+                });
+              case "html":
+                return LanguageDescription.of({
+                  name: "HTML",
+                  support: html(),
+                });
+              case "css":
+                return LanguageDescription.of({
+                  name: "CSS",
+                  support: javascript(),
+                });
+              case "json":
+                return LanguageDescription.of({
+                  name: "JSON",
+                  support: json(),
+                });
+              case "mermaid":
+                return LanguageDescription.of({
+                  name: "Mermaid",
+                  support: mermaidLanguage(),
+                });
+              case "sql":
+                return LanguageDescription.of({
+                  name: "SQL",
+                  support: sql(),
+                });
+              default:
+                return null;
+            }
+          },
+        });
       case "sql":
         return sql();
       case "bash":
@@ -87,7 +141,7 @@ const getLanguageExtension = (lang: string) => {
       case "sh":
         return langs.bash?.(); // Shell uses JavaScript extension as fallback
       case "rust":
-        return langs.rust?.();
+        return rust();
       case "go":
         return langs.go?.();
       case "yaml":
@@ -357,27 +411,28 @@ const MarkdownView: React.FC<{ text: string }> = React.memo(({ text }) => {
     () => ({
       // ✅ THIS IS THE CORRECTED LOGIC
       code({ inline, className, children, ...props }: any) {
-        // 1. Check if the code is inline first. This is the most reliable way.
-        if (inline) {
-          return (
-            <code className="rounded bg-muted px-1.5 py-1 text-[0.9em] text-primary">
-              {children}
-            </code>
-          );
-        }
-
-        // 2. If it's not inline, it's a block. Now we can check for a language.
+        const raw = String(children);
         const match = /language-([\w-]+)/.exec(className || "");
         const lang = match?.[1];
-        const raw = String(children);
 
-        // Handle special languages like Mermaid
-        if (lang === "mermaid") {
-          return <MermaidDiagram code={raw} />;
+        // Distinguish between inline and block code
+        const isBlock = raw.includes("\n") || lang;
+
+        if (isBlock) {
+          // Handle special languages like Mermaid
+          if (lang === "mermaid") {
+            return <MermaidDiagram code={raw} />;
+          }
+          // Render all other blocks (with or without a language) using CodeBlock.
+          return <CodeBlock code={raw} langHint={lang} />;
         }
 
-        // Render all other blocks (with or without a language) using CodeBlock.
-        return <CodeBlock code={raw} langHint={lang} />;
+        // Handle inline code
+        return (
+          <code className="rounded bg-muted px-1.5 py-1 text-[0.9em] text-primary">
+            {children}
+          </code>
+        );
       },
       p: ({ children }: any) => (
         <div className="leading-7 text-foreground/80 [&:not(:first-child)]:mt-4">

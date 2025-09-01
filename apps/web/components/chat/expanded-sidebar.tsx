@@ -14,13 +14,6 @@ import {
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@workspace/ui/components/dialog";
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -48,14 +41,11 @@ export function ExpandedSidebar({
   onPin,
   onSelectChat,
 }: ExpandedSidebarProps) {
-  const {
-    conversations,
-    updateConversationTitle,
-    deleteConversation,
-  } = useConversationStore();
+  const { conversations, updateConversationTitle, deleteConversation } =
+    useConversationStore();
   const { newConversation } = useChatStore();
   const [editingConversation, setEditingConversation] = useState<string | null>(
-    null,
+    null
   );
   const [editingName, setEditingName] = useState("");
   const [selectedConversation, setSelectedConversation] =

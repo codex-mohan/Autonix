@@ -34,6 +34,10 @@ llm = init_chat_model("google_genai:gemini-2.5-flash")
 
 
 def chatbot(state: State, config: RunnableConfig):
+    print("chatbot called")
+    # print(f"state: {state}")
+    print(f"config: {config}")
+
     return {"messages": [llm.invoke(state["messages"])]}
 
 

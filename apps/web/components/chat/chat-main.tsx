@@ -7,7 +7,7 @@ import { TooltipProvider } from "@workspace/ui/components/tooltip";
 import { Button } from "@workspace/ui/components/button";
 import { ChatInput } from "./chat-input";
 import { useStream } from "@langchain/langgraph-sdk/react";
-import type { Message } from "@langchain/langgraph-sdk";
+import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import {
   useChatStore,
   useConversationStore,
@@ -22,6 +22,15 @@ interface ChatMainProps {
   selectedChat: string | null;
   isPinned: boolean;
 }
+
+type State = {
+  messages: Message[];
+  context?: Record<string, unknown>;
+};
+
+type ConfigurableType = {
+  model: string;
+};
 
 export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
   const [threadId, setThreadId] = useState<string | undefined>(undefined);
@@ -38,7 +47,7 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const thread = useStream<{ messages: Message[] }>({
+  const thread = useStream<State>({
     apiUrl: "http://localhost:2024",
     assistantId: "simple",
     messagesKey: "messages",
@@ -58,6 +67,18 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
       }
     }
   }, [selectedChat, setMessages, setShowInitialUI]);
+
+  useEffect(() => {
+    if (selectedChat && selectedChat !== "new") {
+      const conversation = conversations.find((c) => c.id === selectedChat);
+      if (conversation) {
+        // This part is tricky because the messages are fetched by the `useStream` hook.
+        // We need to ensure the UI reflects the loading state and then updates.
+        setMessages([]); // Clear previous messages
+        setShowInitialUI(false); // Move away from the initial view
+      }
+    }
+  }, [selectedChat, conversations, setMessages, setShowInitialUI]);
 
   useEffect(() => {
     setIsLoaded(true);

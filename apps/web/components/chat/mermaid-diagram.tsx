@@ -16,7 +16,10 @@ import {
   defaultHighlightStyle,
 } from "@codemirror/language";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
-import { langs } from "@uiw/codemirror-extensions-langs";
+import {
+  mermaid as mermaidLanguage,
+  mindmapTags,
+} from "codemirror-lang-mermaid";
 import dynamic from "next/dynamic";
 import { tokyoNight } from "@uiw/codemirror-themes-all";
 import {
@@ -31,8 +34,6 @@ import {
   EyeOff,
 } from "lucide-react";
 
-import { nanoid } from "nanoid";
-
 const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
   ssr: false,
 });
@@ -45,7 +46,7 @@ const useCodeMirrorExtensions = () => {
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       EditorView.editable.of(false),
       EditorView.lineWrapping,
-      markdown({ base: markdownLanguage }),
+      mermaidLanguage(),
     ],
     []
   );
