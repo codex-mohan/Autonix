@@ -38,7 +38,6 @@ const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
   ssr: false,
 });
 
-// Memoize extensions for the CodeMirror preview (no changes here)
 const useCodeMirrorExtensions = () => {
   return useMemo(
     () => [
@@ -59,13 +58,10 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
   const [isCopied, setIsCopied] = useState(false);
   const [isRendering, setIsRendering] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
-  // State to manually trigger a re-render
   const [retryId, setRetryId] = useState(0);
 
   const codeMirrorExtensions = useCodeMirrorExtensions();
 
-  // FIX: A single, consolidated useEffect handles rendering.
-  // It runs whenever the diagram code, theme, or the retry trigger changes.
   useEffect(() => {
     const renderDiagram = async () => {
       if (!code.trim()) {
@@ -85,18 +81,19 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
           fontFamily: "inherit",
         });
 
-        // FIX: Use mermaid.render() to get the SVG as a string.
-        // This avoids direct DOM manipulation and integrates cleanly with React state.
         const { svg: renderedSvg } = await mermaid.render(
-          `mermaid-graph-${Date.now()}`.toString(), // A unique ID is required
+          `mermaid-graph-${Date.now()}`.toString(),
           code
         );
         setSvg(renderedSvg);
       } catch (e) {
         console.error("Mermaid rendering failed:", e);
-        const message =
+        // Ensure the error message is clean and can be displayed
+        let message =
           e instanceof Error ? e.message : "An unknown error occurred.";
-        setRenderError(message.replace(/[\r\n]+/g, " ")); // Clean up multiline errors
+        // Sanitize newlines but also potentially break up very long error messages
+        message = message.replace(/[\r\n]+/g, " ").replace(/(.{80})/g, "$1\n"); // Add newline every 80 chars as a soft break hint
+        setRenderError(message);
         setSvg(null);
       } finally {
         setIsRendering(false);
@@ -104,7 +101,7 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
     };
 
     renderDiagram();
-  }, [code, theme, retryId]); // Dependencies are clear and concise
+  }, [code, theme, retryId]);
 
   const handleCopyCode = useCallback(() => {
     navigator.clipboard.writeText(code);
@@ -126,8 +123,6 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
     }
   }, [svg]);
 
-  // FIX: Re-rendering is now handled by updating the `retryId` state,
-  // which re-triggers the main useEffect.
   const handleReRender = () => {
     setRetryId((prev) => prev + 1);
   };
@@ -136,11 +131,25 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
 
   return (
     <div className="mermaid-container my-4 rounded-lg border bg-muted/30">
+      <style jsx global>{`
+        .mermaid-svg-container svg {
+          max-width: 100%; /* Ensure SVG respects parent width */
+          height: auto;
+        }
+        /* Specific styles for error messages to ensure they wrap */
+        .mermaid-error-message {
+          word-break: break-word; /* Allows breaking within words */
+          overflow-wrap: break-word; /* Better for long strings */
+          white-space: pre-wrap; /* Preserves newlines from processing */
+          max-width: 100%; /* Explicitly set max-width */
+        }
+      `}</style>
+
       <div className="relative w-full flex justify-center p-4">
         <TransformWrapper>
           {({ zoomIn, zoomOut, resetTransform }) => (
             <>
-              {/* Controls Toolbar */}
+              {/* Controls Toolbar (unchanged) */}
               <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5 rounded-lg border bg-background/80 p-1.5 shadow-md">
                 <button
                   onClick={() => zoomIn()}
@@ -210,8 +219,7 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
                   height: "100%",
                 }}
               >
-                {/* FIX: The content is now rendered declaratively based on state */}
-                <div className="flex items-center justify-center p-4">
+                <div className="flex flex-col items-center justify-center p-4">
                   {isRendering && (
                     <div className="animate-pulse text-muted-foreground">
                       Rendering diagram...
@@ -220,9 +228,10 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
                   {renderError && !isRendering && (
                     <div className="text-red-500 p-4 text-center">
                       <div className="font-semibold mb-2">Rendering Error</div>
-                      <div className="text-sm font-mono break-all">
+                      <div className="text-sm font-mono mermaid-error-message">
                         {renderError}
-                      </div>
+                      </div>{" "}
+                      {/* Added mermaid-error-message class */}
                       <button
                         onClick={handleReRender}
                         className="mt-2 px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
@@ -232,7 +241,10 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
                     </div>
                   )}
                   {!isRendering && !renderError && svg && (
-                    <div dangerouslySetInnerHTML={{ __html: svg }} />
+                    <div
+                      className="mermaid-svg-container"
+                      dangerouslySetInnerHTML={{ __html: svg }}
+                    />
                   )}
                   {!isRendering && !renderError && !svg && hasContent && (
                     <div className="text-muted-foreground">
@@ -251,7 +263,6 @@ const MermaidDiagram: React.FC<{ code: string }> = React.memo(({ code }) => {
         </TransformWrapper>
       </div>
 
-      {/* Collapsible Code Preview (no major changes needed here) */}
       {showCode && (
         <div className="border-t">
           <CodeMirror

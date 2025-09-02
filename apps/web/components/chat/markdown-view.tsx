@@ -435,7 +435,7 @@ const MarkdownView: React.FC<{ text: string }> = React.memo(({ text }) => {
         );
       },
       p: ({ children }: any) => (
-        <div className="leading-7 text-foreground/80 [&:not(:first-child)]:mt-4">
+        <div className="leading-7 text-foreground/80 [&:not(:first-child)]:mt-4 break-words">
           {children}
         </div>
       ),

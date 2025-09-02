@@ -13,8 +13,9 @@ import {
   useConversationStore,
   type Conversation,
 } from "../../lib/store";
-import { ChatMessageBubble } from "./chat-message-bubble"; // Import ChatMessageBubble
+import { AiMessageBubble, HumanMessageBubble } from "./chat-message-bubble";
 import { useToast } from "../../hooks/use-toast";
+import { ProcessedEvent } from "./activity-timeline";
 
 import { nanoid } from "nanoid";
 
@@ -46,6 +47,16 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
   const { conversations, addConversation } = useConversationStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [spacerHeight, setSpacerHeight] = useState(0);
+  const prevMessagesLength = useRef(messages.length);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [liveActivityEvents, setLiveActivityEvents] = useState<
+    ProcessedEvent[]
+  >([]);
+  const [historicalActivities, setHistoricalActivities] = useState<
+    Record<string, ProcessedEvent[]>
+  >({});
 
   const thread = useStream<State>({
     apiUrl: "http://localhost:2024",
@@ -116,15 +127,42 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
   }, [threadId, messages, conversations, addConversation]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const wasMessageAdded = messages.length > prevMessagesLength.current;
+    const lastMessage = messages[messages.length - 1];
 
-  const handleCopyMessage = (content: string) => {
-    navigator.clipboard.writeText(content);
-    toast({
-      title: "Copied to clipboard!",
-      description: "The message content has been copied.",
-    });
+    if (wasMessageAdded && lastMessage?.type === "human") {
+      const scrollArea = scrollAreaRef.current;
+      if (scrollArea) {
+        const newSpacerHeight = scrollArea.clientHeight * 0.75;
+        setSpacerHeight(newSpacerHeight);
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    } else if (!isLoading) {
+      setSpacerHeight(0);
+    }
+
+    prevMessagesLength.current = messages.length;
+  }, [messages, isLoading]);
+
+  const handleCopyMessage = async (text: string, messageId: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMessageId(messageId);
+      toast({
+        title: "Copied to clipboard!",
+        description: "The message content has been copied.",
+      });
+      setTimeout(() => setCopiedMessageId(null), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy message to clipboard.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleRetryMessage = (message: Message) => {
@@ -135,6 +173,11 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
   const handleInfoMessage = (message: Message) => {
     console.log("Message info:", message);
     // Implement info display logic here
+  };
+
+  const handleEditMessage = (message: Message) => {
+    console.log("Editing message:", message);
+    // Implement edit logic here
   };
 
   return (
@@ -148,6 +191,7 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
         {/* Main Content Area */}
         <div
           className={`flex-1 flex flex-col items-center px-8 pb-4 overflow-y-auto ${showInitialUI ? "justify-center" : "justify-start"}`}
+          ref={scrollAreaRef}
         >
           <div className="w-full max-w-4xl flex flex-col items-center">
             <AnimatePresence>
@@ -223,28 +267,46 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
                 <div className="w-full space-y-4 mb-4 pt-4">
                   {" "}
                   {/* Added pt-4 for some top padding */}
-                  {messages.map((message, index) => (
-                    <ChatMessageBubble
-                      key={message.id || index}
-                      message={message}
-                      onCopy={handleCopyMessage}
-                      onRetry={handleRetryMessage}
-                      onInfo={handleInfoMessage}
-                    />
-                  ))}
-                  {!showInitialUI && !isLoading && messages.length === 0 && (
-                    <ChatMessageBubble
-                      message={{
-                        id: nanoid(),
-                        content: "No message received",
-                        type: "ai",
-                      }}
-                      onCopy={handleCopyMessage}
-                      onRetry={handleRetryMessage}
-                      onInfo={handleInfoMessage}
-                    />
-                  )}
+                  {messages.map((message, index) => {
+                    const isLast = index === messages.length - 1;
+                    return (
+                      <div
+                        key={message.id || `msg-${index}`}
+                        className="space-y-3"
+                      >
+                        <div
+                          className={`flex items-start gap-3 ${
+                            message.type === "human" ? "justify-end" : ""
+                          }`}
+                        >
+                          {message.type === "human" ? (
+                            <HumanMessageBubble
+                              message={message}
+                              onCopy={handleCopyMessage}
+                              onEdit={handleEditMessage} copiedMessageId={null}                            />
+                          ) : (
+                            <AiMessageBubble
+                              message={message}
+                              historicalActivity={
+                                historicalActivities[message.id!]
+                              }
+                              liveActivity={liveActivityEvents} // Pass global live events
+                              isLastMessage={isLast}
+                              isOverallLoading={isLoading} // Pass global loading state
+                              onCopy={handleCopyMessage}
+                              copiedMessageId={copiedMessageId}
+                              onRetry={handleRetryMessage}
+                              onInfo={handleInfoMessage}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                   <div ref={messagesEndRef} />
+                  <div
+                    style={{ height: `${spacerHeight}px`, transition: "height 0.3s ease" }}
+                  />
                 </div>
               )}
             </AnimatePresence>
