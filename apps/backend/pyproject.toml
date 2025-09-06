@@ -23,6 +23,7 @@ dependencies = [
     "langchain-community>=0.3.27",
     "httpx>=0.28.1",
     "langgraph-checkpoint-postgres>=2.0.23",
+    "langchain-experimental>=0.3.4",
 ]
 
 [project.optional-dependencies]

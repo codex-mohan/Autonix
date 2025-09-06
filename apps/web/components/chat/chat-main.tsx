@@ -13,11 +13,16 @@ import {
   useConversationStore,
   type Conversation,
 } from "../../lib/store";
-import { AiMessageBubble, HumanMessageBubble } from "./chat-message-bubble";
+import {
+  AiMessageBubble,
+  HumanMessageBubble,
+  ToolOutputMessageBubble,
+} from "./chat-message-bubble";
 import { useToast } from "../../hooks/use-toast";
 import { ProcessedEvent } from "./activity-timeline";
 
 import { nanoid } from "nanoid";
+import ToolCall from "./tool-call";
 
 interface ChatMainProps {
   selectedChat: string | null;
@@ -103,10 +108,13 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
   }, [thread.isLoading, setIsLoading, setShowInitialUI]);
 
   useEffect(() => {
-    if (thread.messages && thread.messages.length > 0) {
+    if (
+      thread.messages &&
+      JSON.stringify(thread.messages) !== JSON.stringify(messages)
+    ) {
       setMessages(thread.messages);
     }
-  }, [thread.messages, setMessages]);
+  }, [thread.messages, messages, setMessages]);
 
   useEffect(() => {
     if (threadId && messages.length > 0) {
@@ -165,9 +173,12 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
     }
   };
 
-  const handleRetryMessage = (message: Message) => {
-    console.log("Retrying message:", message);
-    // Implement retry logic here, e.g., resubmit the message to the thread
+  const handleRegenerateMessage = (
+    parentCheckpoint: Checkpoint | null | undefined
+  ) => {
+    if (parentCheckpoint) {
+      thread.submit(undefined, { checkpoint: parentCheckpoint });
+    }
   };
 
   const handleInfoMessage = (message: Message) => {
@@ -178,6 +189,10 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
   const handleEditMessage = (message: Message) => {
     console.log("Editing message:", message);
     // Implement edit logic here
+  };
+
+  const handleDeleteMessage = () => {
+    console.log("Delete clicked");
   };
 
   return (
@@ -264,11 +279,14 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
                 </>
               ) : (
                 /* Chat Messages for active chat state */
-                <div className="w-full space-y-4 mb-4 pt-4">
+                <div className="w-full h-full space-y-4 mb-4 pt-4">
                   {" "}
                   {/* Added pt-4 for some top padding */}
                   {messages.map((message, index) => {
                     const isLast = index === messages.length - 1;
+                    const meta = thread.getMessagesMetadata(message);
+                    const parentCheckpoint =
+                      meta?.firstSeenState?.parent_checkpoint;
                     return (
                       <div
                         key={message.id || `msg-${index}`}
@@ -283,7 +301,29 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
                             <HumanMessageBubble
                               message={message}
                               onCopy={handleCopyMessage}
-                              onEdit={handleEditMessage} copiedMessageId={null}                            />
+                              copiedMessageId={null}
+                              onEdit={(message) =>
+                                thread.submit(
+                                  { messages: [message] },
+                                  { checkpoint: parentCheckpoint }
+                                )
+                              }
+                              onDelete={handleDeleteMessage}
+                              onRetry={() =>
+                                handleRegenerateMessage(parentCheckpoint)
+                              }
+                              branch={meta?.branch}
+                              branchOptions={meta?.branchOptions}
+                              onSelectBranch={(branch) =>
+                                thread.setBranch(branch)
+                              }
+                            />
+                          ) : message.type === "tool" ? (
+                            <ToolOutputMessageBubble
+                              message={message}
+                              onCopy={handleCopyMessage}
+                              copiedMessageId={message.tool_call_id}
+                            />
                           ) : (
                             <AiMessageBubble
                               message={message}
@@ -295,8 +335,15 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
                               isOverallLoading={isLoading} // Pass global loading state
                               onCopy={handleCopyMessage}
                               copiedMessageId={copiedMessageId}
-                              onRetry={handleRetryMessage}
+                              onRetry={() =>
+                                handleRegenerateMessage(parentCheckpoint)
+                              }
                               onInfo={handleInfoMessage}
+                              branch={meta?.branch}
+                              branchOptions={meta?.branchOptions}
+                              onSelectBranch={(branch) =>
+                                thread.setBranch(branch)
+                              }
                             />
                           )}
                         </div>
@@ -305,7 +352,10 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
                   })}
                   <div ref={messagesEndRef} />
                   <div
-                    style={{ height: `${spacerHeight}px`, transition: "height 0.3s ease" }}
+                    style={{
+                      height: `${spacerHeight}px`,
+                      transition: "height 0.3s ease",
+                    }}
                   />
                 </div>
               )}

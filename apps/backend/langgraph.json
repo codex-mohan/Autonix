@@ -2,7 +2,8 @@
   "dockerfile_lines": [],
   "graphs": {
     "orchestrator": "./src/orchestrator/graph.py:graph",
-    "simple": "./src/simple/graph.py:graph"
+    "simple": "./src/simple/graph.py:graph",
+    "suggest-questions": "./src/suggest-questions/graph.py:graph"
   },
   "env": ".env",
   "python_version": "3.11",
