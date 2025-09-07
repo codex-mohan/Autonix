@@ -9,7 +9,10 @@ import {
 import { ChevronsUpDown } from "lucide-react";
 import { FiCheck, FiCopy, FiDownload } from "react-icons/fi";
 import { EditorView, lineNumbers } from "@codemirror/view";
-import { syntaxHighlighting, defaultHighlightStyle } from "@codemirror/language";
+import {
+  syntaxHighlighting,
+  defaultHighlightStyle,
+} from "@codemirror/language";
 import { json } from "@codemirror/lang-json";
 import dynamic from "next/dynamic";
 import { tokyoNight } from "@uiw/codemirror-themes-all";
@@ -28,7 +31,7 @@ interface ToolCallProps {
 // Simple code block component with copy functionality (no CodeMirror for outputs)
 const SimpleCodeBlock: React.FC<{ code: string; title?: string }> = ({
   code,
-  title = "code"
+  title = "code",
 }) => {
   const [isCopied, setIsCopied] = useState(false);
 
@@ -39,7 +42,7 @@ const SimpleCodeBlock: React.FC<{ code: string; title?: string }> = ({
   };
 
   const handleDownload = () => {
-    const filename = `${title.toLowerCase().replace(/\s+/g, '-')}.txt`;
+    const filename = `${title.toLowerCase().replace(/\s+/g, "-")}.txt`;
     const blob = new Blob([code], {
       type: `text/plain;charset=utf-8;`,
     });
@@ -97,7 +100,7 @@ const SimpleCodeBlock: React.FC<{ code: string; title?: string }> = ({
 const CodeBlock: React.FC<{ code: string; lang?: string; title?: string }> = ({
   code,
   lang = "json",
-  title = "code"
+  title = "code",
 }) => {
   const [isCopied, setIsCopied] = useState(false);
   const { theme } = useTheme();
@@ -126,7 +129,7 @@ const CodeBlock: React.FC<{ code: string; lang?: string; title?: string }> = ({
 
   const handleDownload = () => {
     const extension = lang === "json" ? "json" : "txt";
-    const filename = `${title.toLowerCase().replace(/\s+/g, '-')}.${extension}`;
+    const filename = `${title.toLowerCase().replace(/\s+/g, "-")}.${extension}`;
     const blob = new Blob([code], {
       type: `text/${extension};charset=utf-8;`,
     });
@@ -218,10 +221,7 @@ const ToolCall: React.FC<ToolCallProps> = ({
       )}
       {toolOutput.length > 0 && (
         <CollapsibleContent className="mb-2">
-          <SimpleCodeBlock
-            code={toolOutput}
-            title="Output"
-          />
+          <SimpleCodeBlock code={toolOutput} title="Output" />
         </CollapsibleContent>
       )}
     </Collapsible>

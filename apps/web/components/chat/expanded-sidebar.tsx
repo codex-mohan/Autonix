@@ -43,7 +43,8 @@ export function ExpandedSidebar({
 }: ExpandedSidebarProps) {
   const { conversations, updateConversationTitle, deleteConversation } =
     useConversationStore();
-  const { newConversation } = useChatStore();
+  const { newConversation, activeConversationId, setActiveConversationId } =
+    useChatStore();
   const [editingConversation, setEditingConversation] = useState<string | null>(
     null
   );
@@ -274,8 +275,15 @@ export function ExpandedSidebar({
                       </div>
                     ) : (
                       <div
-                        className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
-                        onClick={() => onSelectChat(conversation.id)}
+                        className={`flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 cursor-pointer ${
+                          conversation.id === activeConversationId
+                            ? "bg-muted/50"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          onSelectChat(conversation.id);
+                          setActiveConversationId(conversation.id);
+                        }}
                       >
                         <div className="flex-1 min-w-0 pr-2">
                           <p className="text-sm font-medium truncate">

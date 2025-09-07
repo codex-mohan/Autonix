@@ -7,10 +7,12 @@ interface ChatState {
   messages: Message[];
   isLoading: boolean;
   showInitialUI: boolean;
+  activeConversationId: string | null;
   addMessage: (message: Message) => void;
   setMessages: (messages: Message[]) => void;
   setIsLoading: (loading: boolean) => void;
   setShowInitialUI: (show: boolean) => void;
+  setActiveConversationId: (id: string | null) => void;
   newConversation: () => void;
 }
 
@@ -18,12 +20,19 @@ export const useChatStore = create<ChatState>((set) => ({
   messages: [],
   isLoading: false,
   showInitialUI: true,
+  activeConversationId: null,
   addMessage: (message) =>
     set((state) => ({ messages: [...state.messages, message] })),
   setMessages: (messages) => set({ messages }),
   setIsLoading: (loading) => set({ isLoading: loading }),
   setShowInitialUI: (show) => set({ showInitialUI: show }),
-  newConversation: () => set({ messages: [], showInitialUI: true }),
+  setActiveConversationId: (id) => set({ activeConversationId: id }),
+  newConversation: () =>
+    set({
+      messages: [],
+      showInitialUI: true,
+      activeConversationId: null,
+    }),
 }));
 
 export interface Conversation {

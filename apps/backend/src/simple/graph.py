@@ -37,7 +37,13 @@ class config:
 
 graph_builder = StateGraph(State)
 
-llm = init_chat_model("google_genai:gemini-2.5-flash")
+llm = init_chat_model(
+    "google_genai:gemini-2.5-flash",
+    configurable_fields="any",
+    include_thoughts=True,
+    max_retries=3,
+    n=1,  # Only one completion per request
+)
 llm_with_tools = llm.bind_tools(tools)
 
 

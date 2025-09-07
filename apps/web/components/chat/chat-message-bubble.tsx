@@ -3,6 +3,12 @@ import { useState } from "react";
 import type { Message, AIMessage } from "@langchain/langgraph-sdk";
 import { Button } from "@workspace/ui/components/button";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip";
+import {
   FaRedo,
   FaInfoCircle,
   FaUser,
@@ -14,6 +20,7 @@ import { Copy, CopyCheck, ChevronsUpDown } from "lucide-react";
 import { motion } from "framer-motion";
 import MarkdownView from "./markdown-view";
 import ToolCall from "./tool-call";
+import Thinking from "./thinking";
 
 import { ActivityTimeline, ProcessedEvent } from "./activity-timeline";
 
@@ -176,60 +183,84 @@ export const HumanMessageBubble: React.FC<HumanMessageBubbleProps> = ({
           )}
         </div>
         <div className="flex justify-end space-x-1 mt-2">
-          {onEdit && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-6 h-6 text-muted-foreground hover:text-foreground"
-              onClick={() => setEditing(!editing)}
-            >
-              <FaPen className="w-3 h-3" />
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-6 h-6 text-muted-foreground hover:text-foreground"
-            onClick={onDelete}
-          >
-            <FaTrash className="w-3 h-3" />
-          </Button>
-          {onRetry && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-6 h-6 text-muted-foreground hover:text-foreground"
-              onClick={onRetry}
-            >
-              <FaRedo className="w-3 h-3" />
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-6 h-6 text-muted-foreground hover:text-foreground"
-            onClick={() =>
-              onCopy(
-                typeof message.content === "string"
-                  ? message.content
-                  : JSON.stringify(message.content),
-                message.id!
-              )
-            }
-          >
-            {copiedMessageId === message.id ? (
-              <CopyCheck className="w-3 h-3" />
-            ) : (
-              <Copy className="w-3 h-3" />
+          <TooltipProvider>
+            {onEdit && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-6 h-6 text-muted-foreground hover:text-foreground"
+                    onClick={() => setEditing(!editing)}
+                  >
+                    <FaPen className="w-3 h-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Edit</TooltipContent>
+              </Tooltip>
             )}
-          </Button>
-          {onSelectBranch && (
-            <BranchSwitcher
-              branch={branch}
-              branchOptions={branchOptions}
-              onSelect={onSelectBranch}
-            />
-          )}
+            {onDelete && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-6 h-6 text-muted-foreground hover:text-foreground"
+                    onClick={onDelete}
+                  >
+                    <FaTrash className="w-3 h-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Delete</TooltipContent>
+              </Tooltip>
+            )}
+            {onRetry && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-6 h-6 text-muted-foreground hover:text-foreground"
+                    onClick={onRetry}
+                  >
+                    <FaRedo className="w-3 h-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Regenerate</TooltipContent>
+              </Tooltip>
+            )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-6 h-6 text-muted-foreground hover:text-foreground"
+                  onClick={() =>
+                    onCopy(
+                      typeof message.content === "string"
+                        ? message.content
+                        : JSON.stringify(message.content),
+                      message.id!
+                    )
+                  }
+                >
+                  {copiedMessageId === message.id ? (
+                    <CopyCheck className="w-3 h-3" />
+                  ) : (
+                    <Copy className="w-3 h-3" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Copy</TooltipContent>
+            </Tooltip>
+            {onSelectBranch && (
+              <BranchSwitcher
+                branch={branch}
+                branchOptions={branchOptions}
+                onSelect={onSelectBranch}
+              />
+            )}
+          </TooltipProvider>
         </div>
       </div>
       <div className="flex-shrink-0">
@@ -254,6 +285,12 @@ interface AiMessageBubbleProps {
   branch?: string;
   branchOptions?: string[];
   onSelectBranch?: (branch: string) => void;
+  usageMetadata?: {
+    input_tokens: number;
+    output_tokens: number;
+    total_tokens: number;
+    reasoning_tokens?: number;
+  } | null;
 }
 
 // AiMessageBubble Component
@@ -303,13 +340,41 @@ export const AiMessageBubble: React.FC<AiMessageBubbleProps> = ({
               />
             </div>
           )}
-          <MarkdownView
-            text={
-              typeof message.content === "string"
-                ? message.content
-                : JSON.stringify(message.content)
-            }
-          />
+          {typeof message.content === "string" ? (
+            <MarkdownView text={message.content} />
+          ) : (
+            message.content
+              .reduce((acc: any[], content: any) => {
+                const lastItem = acc[acc.length - 1];
+                if (
+                  content.type === "thinking" &&
+                  lastItem?.type === "thinking"
+                ) {
+                  lastItem.thinking += `\n\n${content.thinking}`;
+                } else {
+                  acc.push(content);
+                }
+                return acc;
+              }, [])
+              .map((content: any, index: number) => {
+                if (typeof content === "string") {
+                  return <MarkdownView key={index} text={content} />;
+                }
+                if (content.type === "thinking") {
+                  return (
+                    <Thinking
+                      key={index}
+                      content={content.thinking}
+                      usageMetadata={message.usage_metadata ?? null}
+                      isStreaming={isLiveActivityForThisBubble}
+                    />
+                  );
+                }
+                return (
+                  <pre key={index}>{JSON.stringify(content, null, 2)}</pre>
+                );
+              })
+          )}
           {(message as AIMessage).tool_calls?.map((toolCall: any) => (
             <ToolCall
               key={toolCall.id}
@@ -320,52 +385,81 @@ export const AiMessageBubble: React.FC<AiMessageBubbleProps> = ({
           ))}
         </div>
         <div className="flex justify-start space-x-1 mt-2">
-          {onRetry && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-6 h-6 text-muted-foreground hover:text-foreground"
-              onClick={() => onRetry(message)}
-            >
-              <FaRedo className="w-3 h-3" />
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-6 h-6 text-muted-foreground hover:text-foreground"
-            onClick={() =>
-              onCopy(
-                typeof message.content === "string"
-                  ? message.content
-                  : JSON.stringify(message.content),
-                message.id!
-              )
-            }
-          >
-            {copiedMessageId === message.id ? (
-              <CopyCheck className="w-3 h-3" />
-            ) : (
-              <Copy className="w-3 h-3" />
+          <TooltipProvider>
+            {onRetry && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-6 h-6 text-muted-foreground hover:text-foreground"
+                    onClick={() => onRetry(message)}
+                  >
+                    <FaRedo className="w-3 h-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Regenerate</TooltipContent>
+              </Tooltip>
             )}
-          </Button>
-          {onInfo && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-6 h-6 text-muted-foreground hover:text-foreground"
-              onClick={() => onInfo(message)}
-            >
-              <FaInfoCircle className="w-3 h-3" />
-            </Button>
-          )}
-          {onSelectBranch && (
-            <BranchSwitcher
-              branch={branch}
-              branchOptions={branchOptions}
-              onSelect={onSelectBranch}
-            />
-          )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-6 h-6 text-muted-foreground hover:text-foreground"
+                  onClick={() =>
+                    onCopy(
+                      typeof message.content === "string"
+                        ? message.content
+                        : JSON.stringify(
+                            message.content.filter(
+                              (c: any) => typeof c === "string"
+                            ),
+                            null,
+                            2
+                          ),
+                      message.id!
+                    )
+                  }
+                >
+                  {copiedMessageId === message.id ? (
+                    <CopyCheck className="w-3 h-3" />
+                  ) : (
+                    <Copy className="w-3 h-3" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Copy</TooltipContent>
+            </Tooltip>
+            {onInfo && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-6 h-6 text-muted-foreground hover:text-foreground"
+                    onClick={() => onInfo(message)}
+                  >
+                    <FaInfoCircle className="w-3 h-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-xs">
+                    <p>Input Tokens: {message.usage_metadata?.input_tokens}</p>
+                    <p>Output Tokens: {message.usage_metadata?.output_tokens}</p>
+                    <p>Total Tokens: {message.usage_metadata?.total_tokens}</p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {onSelectBranch && (
+              <BranchSwitcher
+                branch={branch}
+                branchOptions={branchOptions}
+                onSelect={onSelectBranch}
+              />
+            )}
+          </TooltipProvider>
         </div>
       </div>
     </motion.div>
