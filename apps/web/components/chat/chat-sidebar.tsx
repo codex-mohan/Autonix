@@ -17,7 +17,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ExpandedSidebar } from "./expanded-sidebar";
 
 interface ChatSidebarProps {
-  selectedChat: string | null;
+  selectedChat?: string;
   onSelectChat: (chatId: string) => void;
   isPinned: boolean;
   onPinChange: (pinned: boolean) => void;
@@ -375,6 +375,7 @@ export function ChatSidebar({
           isPinned={isPinned}
           onPin={handlePin}
           onSelectChat={onSelectChat}
+          activeConversationId={selectedChat || undefined}
         />
       </div>
     </div>

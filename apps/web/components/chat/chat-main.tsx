@@ -2,12 +2,13 @@
 
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { TooltipProvider } from "@workspace/ui/components/tooltip";
 import { Button } from "@workspace/ui/components/button";
 import { ChatInput } from "./chat-input";
 import { useStream } from "@langchain/langgraph-sdk/react";
-import { Checkpoint, Message } from "@langchain/langgraph-sdk";
+import { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
 import {
   useChatStore,
   useConversationStore,
@@ -21,12 +22,10 @@ import {
 import { useToast } from "../../hooks/use-toast";
 import { ProcessedEvent } from "./activity-timeline";
 
-import { nanoid } from "nanoid";
-import ToolCall from "./tool-call";
-
 interface ChatMainProps {
-  selectedChat: string | null;
+  selectedChat?: string;
   isPinned: boolean;
+  activeConversationId?: string;
 }
 
 type State = {
@@ -38,7 +37,12 @@ type ConfigurableType = {
   model: string;
 };
 
-export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
+export function ChatMain({
+  selectedChat,
+  isPinned,
+  activeConversationId,
+}: ChatMainProps) {
+  const router = useRouter();
   const [threadId, setThreadId] = useState<string | undefined>(undefined);
   const {
     messages,
@@ -72,29 +76,19 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
   });
 
   useEffect(() => {
-    if (selectedChat && selectedChat !== "new") {
+    if (selectedChat) {
       setThreadId(selectedChat);
-    } else {
-      setThreadId(undefined);
-      setMessages([]);
-      setShowInitialUI(true);
-      if (thread.messages) {
-        thread.messages.length = 0;
-      }
     }
-  }, [selectedChat, setMessages, setShowInitialUI]);
+  }, [selectedChat]);
 
   useEffect(() => {
-    if (selectedChat && selectedChat !== "new") {
-      const conversation = conversations.find((c) => c.id === selectedChat);
-      if (conversation) {
-        // This part is tricky because the messages are fetched by the `useStream` hook.
-        // We need to ensure the UI reflects the loading state and then updates.
-        setMessages([]); // Clear previous messages
-        setShowInitialUI(false); // Move away from the initial view
-      }
+    if (threadId && !selectedChat && messages.length > 0 && !showInitialUI) {
+      // Only redirect to the new chat URL when there are actual messages
+      // and the initial UI is hidden (indicating conversation has started)
+      // This ensures we stay on /chat until the user sends their first message
+      router.push(`/chat/${threadId}`);
     }
-  }, [selectedChat, conversations, setMessages, setShowInitialUI]);
+  }, [threadId, selectedChat, messages.length, showInitialUI, router]);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -102,10 +96,12 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
 
   useEffect(() => {
     setIsLoading(thread.isLoading);
-    if (thread.isLoading) {
+    // Only hide initial UI when we have actual messages (not just when loading starts)
+    // This prevents premature hiding of the initial UI
+    if (thread.isLoading && messages.length > 0) {
       setShowInitialUI(false);
     }
-  }, [thread.isLoading, setIsLoading, setShowInitialUI]);
+  }, [thread.isLoading, setIsLoading, setShowInitialUI, messages.length]);
 
   useEffect(() => {
     if (
@@ -113,26 +109,61 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
       JSON.stringify(thread.messages) !== JSON.stringify(messages)
     ) {
       setMessages(thread.messages);
+
+      // Hide initial UI when we receive any messages
+      if (showInitialUI && thread.messages.length > 0) {
+        setShowInitialUI(false);
+      }
     }
-  }, [thread.messages, messages, setMessages]);
+  }, [thread.messages, messages, setMessages, showInitialUI, setShowInitialUI]);
 
   useEffect(() => {
-    if (threadId && messages.length > 0) {
+    if (threadId && messages.length > 0 && !showInitialUI) {
       const conversationExists = conversations.some(
         (conv) => conv.id === threadId
       );
       if (!conversationExists) {
-        addConversation({
-          id: threadId,
-          title: messages[0]?.content as string,
-          timestamp: new Date().toISOString(),
-          messageCount: messages.length,
-          lastMessage: messages[messages.length - 1]?.content as string,
-          firstMessage: messages[0]?.content as string,
-        });
+        // Only create conversation if there's at least one human message
+        // and the initial UI is hidden (indicating conversation has started)
+        const hasHumanMessage = messages.some((msg) => msg.type === "human");
+
+        if (hasHumanMessage) {
+          const firstMessage = messages[0];
+          const lastMessage = messages[messages.length - 1];
+
+          // Extract meaningful content for title and messages
+          const getMessageContent = (message: Message): string => {
+            if (!message) return "New conversation";
+            if (typeof message.content === "string") {
+              return message.content.trim() || "New conversation";
+            }
+            if (Array.isArray(message.content)) {
+              const textContent = message.content.find(
+                (c: any) => typeof c === "string"
+              );
+              return textContent?.toString().trim() || "New conversation";
+            }
+            return "New conversation";
+          };
+
+          const title = getMessageContent(firstMessage as Message);
+          const firstMessageContent = getMessageContent(
+            firstMessage as Message
+          );
+          const lastMessageContent = getMessageContent(lastMessage as Message);
+
+          addConversation({
+            id: threadId,
+            title: title.length > 50 ? title.substring(0, 47) + "..." : title,
+            timestamp: new Date().toISOString(),
+            messageCount: messages.length,
+            lastMessage: lastMessageContent,
+            firstMessage: firstMessageContent,
+          });
+        }
       }
     }
-  }, [threadId, messages, conversations, addConversation]);
+  }, [threadId, messages, conversations, addConversation, showInitialUI]);
 
   useEffect(() => {
     const wasMessageAdded = messages.length > prevMessagesLength.current;
@@ -326,7 +357,7 @@ export function ChatMain({ selectedChat, isPinned }: ChatMainProps) {
                             />
                           ) : (
                             <AiMessageBubble
-                              message={message}
+                              message={message as AIMessage}
                               historicalActivity={
                                 historicalActivities[message.id!]
                               }

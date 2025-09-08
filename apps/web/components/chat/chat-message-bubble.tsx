@@ -272,7 +272,7 @@ export const HumanMessageBubble: React.FC<HumanMessageBubbleProps> = ({
 
 // Props for AiMessageBubble
 interface AiMessageBubbleProps {
-  message: Message;
+  message: AIMessage;
   historicalActivity: ProcessedEvent[] | undefined;
   liveActivity: ProcessedEvent[] | undefined;
   isLastMessage: boolean;
@@ -351,6 +351,8 @@ export const AiMessageBubble: React.FC<AiMessageBubbleProps> = ({
                   lastItem?.type === "thinking"
                 ) {
                   lastItem.thinking += `\n\n${content.thinking}`;
+                } else if (content.type === "text") {
+                  lastItem.text += content.text;
                 } else {
                   acc.push(content);
                 }
@@ -359,6 +361,16 @@ export const AiMessageBubble: React.FC<AiMessageBubbleProps> = ({
               .map((content: any, index: number) => {
                 if (typeof content === "string") {
                   return <MarkdownView key={index} text={content} />;
+                }
+                // To handle partial text stream which has text type (which is highly unlikely due to the
+                // acculumator that is used above.) This is mostly used as a fallback
+                if (content.type === "text") {
+                  return (
+                    <MarkdownView
+                      key={index}
+                      text={content.text}
+                    ></MarkdownView>
+                  );
                 }
                 if (content.type === "thinking") {
                   return (
@@ -446,7 +458,9 @@ export const AiMessageBubble: React.FC<AiMessageBubbleProps> = ({
                 <TooltipContent>
                   <div className="text-xs">
                     <p>Input Tokens: {message.usage_metadata?.input_tokens}</p>
-                    <p>Output Tokens: {message.usage_metadata?.output_tokens}</p>
+                    <p>
+                      Output Tokens: {message.usage_metadata?.output_tokens}
+                    </p>
                     <p>Total Tokens: {message.usage_metadata?.total_tokens}</p>
                   </div>
                 </TooltipContent>

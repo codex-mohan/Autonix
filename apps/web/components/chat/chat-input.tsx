@@ -58,7 +58,7 @@ export function ChatInput({ thread }: ChatInputProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [activeLeftIcon, setActiveLeftIcon] = useState("search");
   const inputRef = useRef<HTMLInputElement>(null);
-  const { addMessage, setIsLoading, setShowInitialUI } = useChatStore();
+  const { addMessage, setIsLoading, setShowInitialUI, isLoading } = useChatStore();
 
   const searchContainerVariants = {
     hidden: {
@@ -503,7 +503,7 @@ export function ChatInput({ thread }: ChatInputProps) {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.2 }}
                     >
-                      {thread.isLoading ? (
+                      {isLoading ? (
                         <Button
                           type="button"
                           onClick={handleStop}
@@ -527,7 +527,7 @@ export function ChatInput({ thread }: ChatInputProps) {
                     </motion.div>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{thread.isLoading ? "Stop Stream" : "Send Message"}</p>
+                    <p>{isLoading ? "Stop Stream" : "Send Message"}</p>
                   </TooltipContent>
                 </Tooltip>
               </motion.div>

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useConversationStore, useChatStore } from "@/lib/store";
+import type { Message } from "@langchain/langgraph-sdk";
 import {
   FaPlus,
   FaThumbtack,
@@ -19,10 +21,12 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@workspace/ui/components/tooltip";
+import { randomUUID } from "crypto";
 
 interface Conversation {
   id: string;
   title: string;
+  firstMessage: string;
   lastMessage: string;
   timestamp: string;
   messageCount: number;
@@ -33,24 +37,77 @@ interface ExpandedSidebarProps {
   isPinned: boolean;
   onPin: () => void;
   onSelectChat: (chatId: string) => void;
+  activeConversationId?: string | null;
 }
 
 export function ExpandedSidebar({
   isVisible,
   isPinned,
   onPin,
-  onSelectChat,
+  activeConversationId,
 }: ExpandedSidebarProps) {
-  const { conversations, updateConversationTitle, deleteConversation } =
-    useConversationStore();
-  const { newConversation, activeConversationId, setActiveConversationId } =
-    useChatStore();
+  const {
+    conversations,
+    addConversation,
+    updateConversationTitle,
+    deleteConversation,
+  } = useConversationStore();
+  const { messages } = useChatStore();
   const [editingConversation, setEditingConversation] = useState<string | null>(
     null
   );
   const [editingName, setEditingName] = useState("");
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
+
+  // Auto-create conversation when messages are present
+  useEffect(() => {
+    if (activeConversationId && messages.length > 0) {
+      const conversationExists = conversations.some(
+        (conv) => conv.id === activeConversationId
+      );
+      if (!conversationExists) {
+        // Only create conversation if there's at least one human message
+        // This prevents creating conversations from initial/empty states
+        const hasHumanMessage = messages.some((msg) => msg.type === "human");
+
+        if (hasHumanMessage) {
+          const firstMessage = messages[0];
+          const lastMessage = messages[messages.length - 1];
+
+          // Extract meaningful content for title and messages
+          const getMessageContent = (message: Message): string => {
+            if (!message) return "New conversation";
+            if (typeof message.content === "string") {
+              return message.content.trim() || "New conversation";
+            }
+            if (Array.isArray(message.content)) {
+              const textContent = message.content.find(
+                (c: any) => typeof c === "string"
+              );
+              return textContent?.toString().trim() || "New conversation";
+            }
+            return "New conversation";
+          };
+
+          const title = getMessageContent(firstMessage as Message);
+          const firstMessageContent = getMessageContent(
+            firstMessage as Message
+          );
+          const lastMessageContent = getMessageContent(lastMessage as Message);
+
+          addConversation({
+            id: activeConversationId,
+            title: title.length > 50 ? title.substring(0, 47) + "..." : title,
+            timestamp: new Date().toISOString(),
+            messageCount: messages.length,
+            lastMessage: lastMessageContent,
+            firstMessage: firstMessageContent,
+          });
+        }
+      }
+    }
+  }, [activeConversationId, messages, conversations, addConversation]);
 
   // Professional animation variants with reduced bounce
   const sidebarVariants = {
@@ -215,22 +272,21 @@ export function ExpandedSidebar({
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
               >
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-transparent"
-                  onClick={() => {
-                    onSelectChat("new");
-                    newConversation();
-                  }}
-                >
-                  <motion.div
-                    whileHover={{ rotate: 90 }}
-                    transition={{ duration: 0.2 }}
+                <Link href="/chat" passHref>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start bg-transparent"
+                    onClick={() => {}}
                   >
-                    <FaPlus className="w-4 h-4 mr-2 flex-shrink-0" />
-                  </motion.div>
-                  <span className="truncate">New Conversation</span>
-                </Button>
+                    <motion.div
+                      whileHover={{ rotate: 90 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <FaPlus className="w-4 h-4 mr-2 flex-shrink-0" />
+                    </motion.div>
+                    <span className="truncate">New Conversation</span>
+                  </Button>
+                </Link>
               </motion.div>
             </motion.div>
 
@@ -244,7 +300,7 @@ export function ExpandedSidebar({
               {conversations.length > 0 ? (
                 conversations.map((conversation) => (
                   <motion.div
-                    key={conversation.id}
+                    key={`${conversation.id}-${crypto.randomUUID()}`}
                     variants={itemVariants}
                     className="group"
                   >
@@ -274,71 +330,70 @@ export function ExpandedSidebar({
                         </Button>
                       </div>
                     ) : (
-                      <div
-                        className={`flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 cursor-pointer ${
-                          conversation.id === activeConversationId
-                            ? "bg-muted/50"
-                            : ""
-                        }`}
-                        onClick={() => {
-                          onSelectChat(conversation.id);
-                          setActiveConversationId(conversation.id);
-                        }}
-                      >
-                        <div className="flex-1 min-w-0 pr-2">
-                          <p className="text-sm font-medium truncate">
-                            {conversation.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {conversation.timestamp}
-                          </p>
+                      <Link href={`/chat/${conversation.id}`} passHref>
+                        <div
+                          className={`flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 cursor-pointer ${
+                            conversation.id === activeConversationId
+                              ? "bg-muted/50"
+                              : ""
+                          }`}
+                          onClick={() => {}}
+                        >
+                          <div className="flex-1 min-w-0 pr-2">
+                            <p className="text-sm font-medium truncate">
+                              {conversation.title}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {conversation.timestamp}
+                            </p>
+                          </div>
+                          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="w-6 h-6"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditConversation(
+                                        conversation.id,
+                                        conversation.title
+                                      );
+                                    }}
+                                  >
+                                    <FaEdit className="w-3 h-3" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Edit</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="w-6 h-6 text-destructive hover:text-destructive"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteConversation(conversation.id);
+                                    }}
+                                  >
+                                    <FaTrash className="w-3 h-3" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Delete</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
                         </div>
-                        <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="w-6 h-6"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditConversation(
-                                      conversation.id,
-                                      conversation.title
-                                    );
-                                  }}
-                                >
-                                  <FaEdit className="w-3 h-3" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Edit</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="w-6 h-6 text-destructive hover:text-destructive"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteConversation(conversation.id);
-                                  }}
-                                >
-                                  <FaTrash className="w-3 h-3" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Delete</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                      </div>
+                      </Link>
                     )}
                   </motion.div>
                 ))
