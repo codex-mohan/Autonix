@@ -1,12 +1,7 @@
 "use client";
 import { FC, useState, useMemo } from "react";
-import { Button } from "@workspace/ui/components/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@workspace/ui/components/collapsible";
-import { ChevronsUpDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import { FiCheck, FiCopy, FiDownload } from "react-icons/fi";
 import { EditorView, lineNumbers } from "@codemirror/view";
 import {
@@ -196,35 +191,48 @@ const ToolCall: React.FC<ToolCallProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Collapsible
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      className="rounded-lg border bg-background px-3 py-2"
-    >
-      <div className="flex items-center justify-between space-x-4">
-        <h4 className="text-sm font-bold">Tool Call: {toolName}</h4>
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" size="sm" className="w-9 p-0">
-            <ChevronsUpDown className="h-4 w-4" />
-            <span className="sr-only">Toggle</span>
-          </Button>
-        </CollapsibleTrigger>
-      </div>
-      {Object.keys(toolArgs).length > 0 && (
-        <CollapsibleContent className="mb-2">
-          <CodeBlock
-            code={JSON.stringify(toolArgs, null, 2)}
-            lang="json"
-            title="Arguments"
-          />
-        </CollapsibleContent>
-      )}
-      {toolOutput.length > 0 && (
-        <CollapsibleContent className="mb-2">
-          <SimpleCodeBlock code={toolOutput} title="Output" />
-        </CollapsibleContent>
-      )}
-    </Collapsible>
+    <div className="w-full my-4">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="group flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none"
+      >
+        <span className="font-semibold">
+          {toolOutput
+            ? `Tool Output for ${toolName}`
+            : `Tool Call: ${toolName}`}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 transform transition-transform duration-300 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="mt-2 pl-4 border-l-2 border-border">
+              {Object.keys(toolArgs).length > 0 && (
+                <CodeBlock
+                  code={JSON.stringify(toolArgs, null, 2)}
+                  lang="json"
+                  title="Arguments"
+                />
+              )}
+              {toolOutput.length > 0 && (
+                <SimpleCodeBlock code={toolOutput} title="Output" />
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

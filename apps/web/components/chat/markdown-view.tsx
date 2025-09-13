@@ -140,6 +140,7 @@ const getLanguageExtension = (lang: string) => {
       case "bash":
       case "shell":
       case "sh":
+      case "zsh":
         return langs.bash?.(); // Shell uses JavaScript extension as fallback
       case "rust":
         return rust();

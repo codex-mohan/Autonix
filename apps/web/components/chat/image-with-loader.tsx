@@ -10,7 +10,7 @@ import {
   Link as LinkIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const ZoomableImageWithLoader = ({
   src,
@@ -24,7 +24,6 @@ const ZoomableImageWithLoader = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { toast } = useToast();
 
   // This effect preloads the image and manages loading/error states
   useEffect(() => {
@@ -63,7 +62,7 @@ const ZoomableImageWithLoader = ({
 
   const copyUrl = () => {
     navigator.clipboard.writeText(src);
-    toast({
+    toast("URL Copied", {
       description: "URL copied to clipboard!",
     });
   };

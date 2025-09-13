@@ -9,17 +9,13 @@ import { Button } from "@workspace/ui/components/button";
 import { ChatInput } from "./chat-input";
 import { useStream } from "@langchain/langgraph-sdk/react";
 import { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
-import {
-  useChatStore,
-  useConversationStore,
-  type Conversation,
-} from "../../lib/store";
+import { useChatStore, useConversationStore } from "../../lib/store";
 import {
   AiMessageBubble,
   HumanMessageBubble,
   ToolOutputMessageBubble,
 } from "./chat-message-bubble";
-import { useToast } from "../../hooks/use-toast";
+import { toast } from "sonner";
 import { ProcessedEvent } from "./activity-timeline";
 
 interface ChatMainProps {
@@ -30,6 +26,7 @@ interface ChatMainProps {
 
 type State = {
   messages: Message[];
+  model: String;
   context?: Record<string, unknown>;
 };
 
@@ -52,7 +49,6 @@ export function ChatMain({
     showInitialUI,
     setShowInitialUI,
   } = useChatStore();
-  const { toast } = useToast();
   const { conversations, addConversation } = useConversationStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -189,17 +185,14 @@ export function ChatMain({
     try {
       await navigator.clipboard.writeText(text);
       setCopiedMessageId(messageId);
-      toast({
-        title: "Copied to clipboard!",
+      toast("Copied to clipboard", {
         description: "The message content has been copied.",
       });
       setTimeout(() => setCopiedMessageId(null), 2000); // Reset after 2 seconds
     } catch (err) {
       console.error("Failed to copy text: ", err);
-      toast({
-        title: "Failed to copy",
+      toast("Failed to Copy", {
         description: "Could not copy message to clipboard.",
-        variant: "destructive",
       });
     }
   };

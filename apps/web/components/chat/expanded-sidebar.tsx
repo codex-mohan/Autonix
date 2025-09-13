@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useConversationStore, useChatStore } from "@/lib/store";
 import type { Message } from "@langchain/langgraph-sdk";
@@ -59,6 +60,7 @@ export function ExpandedSidebar({
   const [editingName, setEditingName] = useState("");
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
+  const router = useRouter();
 
   // Auto-create conversation when messages are present
   useEffect(() => {
@@ -197,6 +199,10 @@ export function ExpandedSidebar({
   };
 
   const handleDeleteConversation = (conversationId: string) => {
+    // Prevent deletion if it's the active conversation and there are messages
+    if (conversationId === activeConversationId) {
+      router.push("/chat");
+    }
     deleteConversation(conversationId);
   };
 
@@ -356,6 +362,7 @@ export function ExpandedSidebar({
                                     variant="ghost"
                                     className="w-6 h-6"
                                     onClick={(e) => {
+                                      e.preventDefault();
                                       e.stopPropagation();
                                       handleEditConversation(
                                         conversation.id,
@@ -379,6 +386,7 @@ export function ExpandedSidebar({
                                     variant="ghost"
                                     className="w-6 h-6 text-destructive hover:text-destructive"
                                     onClick={(e) => {
+                                      e.preventDefault();
                                       e.stopPropagation();
                                       handleDeleteConversation(conversation.id);
                                     }}
